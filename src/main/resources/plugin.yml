@@ -1,0 +1,13 @@
+name: ABPromoter
+main: manners.cowardly.abpromoter.ABPromoter
+version: 0.1
+api-version: 1.13
+depend: [Vault]
+commands:
+  buy:
+    description: 'Buy menu'
+    aliases: [store]
+  abpmre:
+    description: 'Menu referral'
+  abpmto:
+    description: 'Menu through delivery'

@@ -1,0 +1,64 @@
+messageGroups:
+    newPlayers:
+        messageLists:
+            # <valid messageList name>: <weight>, integer
+            promotions: 50
+            help: 50
+        eligibility:
+            # must have one or more of orGroups
+            orGroups:
+            - default
+            # must have no notGroups
+            notGroups:
+            - vip
+            # must have all andGroups
+            andGroups:
+            # hours, decimal
+            playTimeMinimum: 0
+            playTimeMaximum: 0.75
+        timer:
+            # seconds, integer. time after login that the first message will show.
+            afterLogin: 10
+            # seconds, integer. after the first login message, a message will be sent every (this many) seconds
+            every: 10
+messageLists:
+    # links: [Text](Menu Page, comma separated, tries to open first all the way to last, if none available use default page){Hover text, can be blank for none}
+    # new line marker (excluding quotes): '`'
+    # new line character for hover text (excluding quotes): '$n$'
+    # no color codes inside link text, inside hover text is ok
+    promotions:
+        promotionTest: 10
+        helpTest: 4
+    defaultTest:
+        
+messages:
+    promotionTest:
+    - "<text>[color=red][formatting=bold][hovertext='§c§lHover text'] Text"
+    - "<text>Text"
+    - "ttt"
+    helpTest:
+    - "<text>[color=red][formatting=bold][hovertext='§c§lHover thelpt'] help"
+    - "<text>Text"
+    - "ttt"
+    defaultTest:
+    - "<text>[color=red][formatting=bold][hovertext='§c§lHdefault'] default"
+    - "<text>Text"
+    - "def"
+    - "<legacy_text>He`llo"
+# if a player does not fit in any message groups, they get this
+defaultMessageGroup:
+    messageLists:
+        help: 50
+        promotions: 50
+        defaultTest: 110
+    eligibility:
+        orGroups:
+        - default
+        notGroups:
+        - vip
+        andGroups:
+        playTimeMinimum: 0
+        playTimeMaximum: 0.75
+    timer:
+        afterLogin: 10
+        every: 10

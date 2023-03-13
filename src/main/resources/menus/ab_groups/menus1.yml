@@ -1,0 +1,50 @@
+menuTitle: 'Store'
+# 1-6
+rows: 6
+# these filler items will be placed in all pages. if the page has an item in the same spot as a filler item, the page item will override the filler item.
+defaultPage: ranks
+filler:
+    # key names here do not matter
+    '1':
+        material: 'BLACK_STAINED_GLASS_PANE'
+        stackAmount: 1
+        name: ''
+        lore:
+        - 'Test'
+        - 'Lore'
+        # list of indices (integers) where this item will be, starting at 0 from left to right then top to bottom. for example, a 6 row inventory would have indices 0-53
+        slots:
+        - '0'
+        - '20'
+        # instead of individual indices, can also control filler item for the whole row
+        rows:
+        - '1'
+        - '2'
+        - '4'
+        - '5'
+        - '6'
+pages:
+    # keys are same as page name in database and the page name in clickable announcer messages
+    # pageName:
+    #     buttonName:
+    ranks:
+        # button name is the same as in database
+        expert:
+            material: 'gold_ingot'
+            name: '§6Expert'
+            stackAmount: 1
+            lore:
+            - 'Expert rank'
+            - 'fgfdgdg'
+            # the first column is 1, the first row is 1
+            row: 3
+            column: 3
+            # this can be omitted if no link
+            link:
+                # "chat" or "page"
+                type: chat
+                # if "page", the page names (will try to open others if the first is invalid for the user's ab group)
+                # if "chat", the message lines which will appear in chat
+                content:
+                - "Click here to visit our store: https://asdf.buycraft.net"
+            

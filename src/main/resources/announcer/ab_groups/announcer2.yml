@@ -1,0 +1,56 @@
+messageGroups:
+    newPlayers:
+        messageLists:
+            # <valid messageList name>: <weight>, integer
+            promotions: 50
+            help: 50
+        eligibility:
+            # must have one or more of orGroups
+            orGroups:
+            - default
+            # must have no notGroups
+            notGroups:
+            - vip
+            # must have all andGroups
+            andGroups:
+            # hours, decimal
+            playTimeMinimum: 0
+            playTimeMaximum: 0.75
+        timer:
+            # seconds, integer. time after login that the first message will show.
+            afterLogin: 10
+            # seconds, integer. after the first login message, a message will be sent every (this many) seconds
+            every: 10
+messageLists:
+    # links: [Text](Menu Page, comma separated, tries to open first all the way to last, if none available use default page){Hover text, can be blank for none}
+    # new line marker (excluding quotes): '`'
+    # new line character for hover text (excluding quotes): '$n$'
+    # no color codes inside link text, inside hover text is ok
+    promotions:
+    - '§b[Link Test(promotions)](ranks){§bHover §6text$n$line §b2}'
+    - 'Test2'
+    help:
+    - 'Test'
+    - '§b[Link Test(help)](ranks){§bHover §6text$n$line §b2}'
+    vipUpgrade:
+    - 'Test'
+    - '§b[Link Test(vipUpgrade)](ranks){§bHover §6text$n$line §b2}'
+    defaultTest:
+    - '§b[Link Test(defaultTest)](ranks){§bHover §6text$n$line §b2}'
+# if a player does not fit in any message groups, they get this
+defaultMessageGroup:
+    messageLists:
+        help: 50
+        promotions: 50
+        defaultTest: 110
+    eligibility:
+        orGroups:
+        - default
+        notGroups:
+        - vip
+        andGroups:
+        playTimeMinimum: 0
+        playTimeMaximum: 0.75
+    timer:
+        afterLogin: 10
+        every: 10
