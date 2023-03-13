@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.announcer.abgroup.components.MessageGroup;
 import manners.cowardly.abpromoter.announcer.abgroup.components.MessageLists;
+import manners.cowardly.abpromoter.announcer.abgroup.components.Messages;
 
 public class AnnouncerABGroup {
     private List<MessageGroupEntry> messageGroups = new ArrayList<MessageGroupEntry>();
@@ -20,7 +21,8 @@ public class AnnouncerABGroup {
 
     public AnnouncerABGroup(ConfigurationSection config, String name) {
         this.name = name;
-        MessageLists msgLists = new MessageLists(config.getConfigurationSection("messageLists"));
+        Messages messages = new Messages(config.getConfigurationSection("messages"));
+        MessageLists msgLists = new MessageLists(config.getConfigurationSection("messageLists"), messages);
         new LoadConfiguration(config, msgLists);
         Bukkit.getScheduler().runTaskTimer(ABPromoter.getInstance(), this::sortMsgGroupsByFrequency, 12000, 24000);
     }

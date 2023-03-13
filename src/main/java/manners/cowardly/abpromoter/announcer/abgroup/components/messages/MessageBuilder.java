@@ -3,30 +3,22 @@ package manners.cowardly.abpromoter.announcer.abgroup.components.messages;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.pieces.MenuLinkPiece;
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.pieces.MessagePiece;
 import manners.cowardly.abpromoter.utilities.RandomStringGenerator;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Content;
-import net.md_5.bungee.api.chat.hover.content.Text;
 
 public class MessageBuilder {
-    private ArrayList<BaseComponent[]> lineComponents;
-    private List<MenuPageLineIndexAndComponentIndex> clickableIndices = new ArrayList<MenuPageLineIndexAndComponentIndex>();
+    private BaseComponent[] components;
+    private List<MenuPageAndComponentIndex> clickableIndices = new ArrayList<MenuPageAndComponentIndex>();
     private String menuCommand = "abpmto";
     private String rawMessage;
 
-    private static Pattern findClickables = Pattern.compile("\\[(.*?)\\]\\((.*?)\\)\\{(.*?)\\}");
-
-    public MessageBuilder(String rawText) {
-        this.rawMessage = rawText;
+    public MessageBuilder(List<String> rawText) {
         new BuildBuilder(rawText);
     }
 
@@ -35,141 +27,61 @@ public class MessageBuilder {
     }
 
     private class BuildBuilder {
-
-        private String marker = "@#*!-=--";
-
-        public BuildBuilder(String rawText) {
-            rawText.replace("`", "\n");
-            String[] rawLines = rawText.split("`");
-            ArrayList<BaseComponent[]> lines = new ArrayList<BaseComponent[]>();
-            for (String rawLine : rawLines)
-                lines.add(processComponentsOfLine(rawLine, lines.size()));
-            lineComponents = lines;
+        public BuildBuilder(List<String> rawText) {
+            combineRawText(rawText);
+            loadPieces(rawText);
         }
 
-        private BaseComponent[] processComponentsOfLine(String rawLine, int lineIndex) {
-            BaseComponent[] rawComponents = TextComponent.fromLegacyText(rawLine);
-
+        private void loadPieces(List<String> rawText) {
             List<BaseComponent> components = new ArrayList<BaseComponent>();
-            for (BaseComponent component : rawComponents) {
-                if (component instanceof TextComponent) {
-                    processComponent((TextComponent) component, components, lineIndex);
-                } else {
-                    components.add(component);
-                }
-            }
-            return components.toArray(new BaseComponent[components.size()]);
+            rawText.forEach(rawPiece -> addPiece(rawPiece, components));
+            MessageBuilder.this.components = components.toArray(BaseComponent[]::new);
         }
 
-        private void processComponent(TextComponent component, List<BaseComponent> components, int lineIndex) {
-            String componentText = component.getText();
-            List<ClickableInfo> rawClickables = rawClickables(componentText);
-            // replace raw clickables with marker
-            for (ClickableInfo rawClickable : rawClickables)
-                componentText = componentText.replaceFirst(Pattern.quote(rawClickable.raw), marker);
-            String[] split = componentText.split(marker);
-
-            int rawClickableIndex = 0;
-            for (String nonClickable : split) {
-                TextComponent piece = new TextComponent(nonClickable);
-                piece.setText(piece.getText().replace("\\n", "\n"));
-                piece.copyFormatting(component);
-                components.add(piece);
-                if (rawClickableIndex < rawClickables.size())
-                    components.add(clickableComponent(rawClickables.get(rawClickableIndex), components.size(),
-                            lineIndex, component));
-                rawClickableIndex++;
-            }
+        private void addPiece(String rawPiece, List<BaseComponent> components) {
+            MessagePiece piece = MessagePiece.fromRawText(rawPiece);
+            piece.addComponents(components);
+            if (piece instanceof MenuLinkPiece)
+                saveClickablePiece(components.size() - 1, (MenuLinkPiece) piece);
         }
 
-        private TextComponent clickableComponent(ClickableInfo rawClickable, int indexWithinLine, int lineIndex,
-                TextComponent originalUnsplit) {
-            TextComponent component = new TextComponent(rawClickable.text);
-            if (rawClickable.hoverText.length() > 0) {
-                component.setHoverEvent(
-                        new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverContents(rawClickable.hoverText)));
-                clickableIndices
-                        .add(new MenuPageLineIndexAndComponentIndex(rawClickable.page, indexWithinLine, lineIndex));
-            }
-            component.copyFormatting(originalUnsplit);
-            return component;
+        private void saveClickablePiece(int index, MenuLinkPiece piece) {
+            MenuPageAndComponentIndex clickableInfo = new MenuPageAndComponentIndex(((MenuLinkPiece) piece).getPages(),
+                    index);
+            clickableIndices.add(clickableInfo);
         }
 
-        private List<Content> hoverContents(String rawHoverText) {
-            String[] lines = rawHoverText.split("$n$");
-            List<Content> contents = new ArrayList<Content>();
-            for (String line : lines)
-                contents.add(new Text(TextComponent.fromLegacyText(line)));
-            return contents;
-        }
-
-        /**
-         * Extract the raw clickable text
-         * 
-         * @param raw
-         * @return
-         */
-        private List<ClickableInfo> rawClickables(String raw) {
-            List<ClickableInfo> matchList = new ArrayList<ClickableInfo>();
-            System.out.println("raw component " + raw);
-            Matcher regexMatcher = findClickables.matcher(raw);
-
-            while (regexMatcher.find()) {
-                matchList.add(new ClickableInfo(regexMatcher.group(0), regexMatcher.group(1), regexMatcher.group(2),
-                        regexMatcher.group(3)));
-            }
-
-            return matchList;
-        }
-
-        private class ClickableInfo {
-            public ClickableInfo(String raw, String text, String page, String hoverText) {
-                this.raw = raw;
-                this.text = text;
-                this.page = page;
-                this.hoverText = hoverText;
-            }
-
-            private String raw;
-            private String text;
-            private String page;
-            private String hoverText;
+        private void combineRawText(List<String> rawText) {
+            StringBuilder builder = new StringBuilder(100);
+            rawText.forEach(raw -> builder.append(raw));
+            rawMessage = builder.toString();
         }
     }
 
     public class DeliverableMessage {
-        private List<BaseComponent[]> componentLines;
+        private BaseComponent[] components;
         private List<MessageTokenInfo> tokens;
 
         public DeliverableMessage() {
-            this.componentLines = copyLines(MessageBuilder.this.lineComponents);
+            components = Arrays.copyOf(MessageBuilder.this.components, MessageBuilder.this.components.length);
             tokens = new ArrayList<MessageTokenInfo>();
             setClickableComponents();
         }
 
-        private List<BaseComponent[]> copyLines(List<BaseComponent[]> toCopy) {
-            List<BaseComponent[]> copy = new ArrayList<BaseComponent[]>(toCopy.size());
-            toCopy.forEach(line -> copy.add(Arrays.copyOf(line, line.length)));
-            return copy;
-        }
-
         private void setClickableComponents() {
-            for (MenuPageLineIndexAndComponentIndex tokenBuilder : clickableIndices) {
-                MessageTokenInfo token = new MessageTokenInfo(tokenBuilder.menuPage);
+            for (MenuPageAndComponentIndex clickableInfo : clickableIndices) {
+                MessageTokenInfo token = new MessageTokenInfo(clickableInfo.menuPages);
                 tokens.add(token);
 
                 String command = menuCommand + " " + token.getToken();
-                BaseComponent[] line = componentLines.get(tokenBuilder.lineIndex);
-                BaseComponent replacement = line[tokenBuilder.componentIndex].duplicate();
-                replacement.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
-                line[tokenBuilder.componentIndex] = replacement;
+                BaseComponent copy = components[clickableInfo.componentIndex].duplicate();
+                copy.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
+                components[clickableInfo.componentIndex] = copy;
             }
         }
 
         public void deliver(Player p) {
-            componentLines.forEach(line -> p.spigot().sendMessage(line));
-            System.out.println("Message: ");
-            componentLines.forEach(line -> Bukkit.getConsoleSender().spigot().sendMessage(line));
+            p.spigot().sendMessage(components);
         }
 
         public String getRawText() {
@@ -184,8 +96,8 @@ public class MessageBuilder {
             private String token;
             private String[] menuPages;
 
-            public MessageTokenInfo(String menuPageString) {
-                this.menuPages = menuPageString.split(",");
+            public MessageTokenInfo(String[] menuPages) {
+                this.menuPages = menuPages;
                 token = RandomStringGenerator.getString(10);
             }
 
@@ -199,15 +111,13 @@ public class MessageBuilder {
         }
     }
 
-    private class MenuPageLineIndexAndComponentIndex {
-        public MenuPageLineIndexAndComponentIndex(String menuPage, int componentIndex, int lineIndex) {
-            this.menuPage = menuPage;
+    private class MenuPageAndComponentIndex {
+        public MenuPageAndComponentIndex(String[] menuPages, int componentIndex) {
+            this.menuPages = menuPages;
             this.componentIndex = componentIndex;
-            this.lineIndex = lineIndex;
         }
 
-        private int lineIndex;
-        private String menuPage;
+        private String[] menuPages;
         private int componentIndex;
     }
 }
