@@ -12,6 +12,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.announcer.abgroup.components.MessageGroup;
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder;
 import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder.DeliverableMessage;
 import manners.cowardly.abpromoter.database.AnnouncerDeliveries;
 
@@ -47,7 +48,6 @@ public class Deliverer {
     }
 
     private void deliver(Player p) {
-        System.out.println("Delivering to " + p.getDisplayName());
         if (p.isOnline()) {
             MessageGroup group = playerMessageGroups.get(p.getUniqueId());
             if (group == null) {
@@ -55,18 +55,25 @@ public class Deliverer {
                         + "\" does not have a message group in Deliverer! Skipping delivery this time. Will check again in 20 minutes.");
                 scheduler.scheduleNextDelivery(p, 1200);
             } else {
-                DeliverableMessage msg = group.sampleMessage().getMessage();
-                msg.deliver(p);
+                MessageBuilder msgBuilder = group.sampleMessage();
+                if (msgBuilder != null) {
+                    DeliverableMessage msg = msgBuilder.getMessage();
+                    msg.deliver(p);
 
-                // store tokens from message
-                tokenRecords.storeTokens(p.getUniqueId(), msg.getTokens());
+                    // store tokens from message
+                    tokenRecords.storeTokens(p.getUniqueId(), msg.getTokens());
 
-                // record delivery in database
-                Collection<String> tokens = msg.getTokens().stream().map(tokenInfo -> tokenInfo.getToken())
-                        .collect(Collectors.toList());
-                deliveriesDb.recordDelivery(msg.getRawText(), group.getName(), p.getUniqueId(), tokens);
+                    // record delivery in database
+                    Collection<String> tokens = msg.getTokens().stream().map(tokenInfo -> tokenInfo.getToken())
+                            .collect(Collectors.toList());
+                    deliveriesDb.recordDelivery(msg.getRawText(), group.getName(), p.getUniqueId(), tokens);
 
-                // schedule next delivery
+                    // schedule next delivery
+                } else {
+                    ABPromoter.getInstance().getLogger()
+                            .warning("Message List returned no message, therefore a message delivery to " + p.getName()
+                                    + " was skipped.");
+                }
                 scheduler.scheduleNextDelivery(p, group.deliverEvery());
             }
         }
