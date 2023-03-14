@@ -63,19 +63,24 @@ public class MenuOpen {
     }
 
     // from sync
-    public void fromCommand(UUID user, String pageName) {
+    public void fromCommand(UUID user, String pageName, MenuInventory inventory) {
         Bukkit.getScheduler().runTaskAsynchronously(ABPromoter.getInstance(),
-                () -> fromCommandAsync(user.toString(), pageName));
+                () -> fromCommandAsync(user.toString(), pageName, inventory));
     }
 
-    private void fromCommandAsync(String user, String pageName) {
+    private void fromCommandAsync(String user, String pageName, MenuInventory inventory) {
         try (Connection c = pool.getConnection()) {
             int pageId = menuPageTranslator.idOfString(pageName);
             PreparedStatement s = c.prepareStatement(
-                    "INSERT INTO menu_opens SET user=(SELECT id FROM users WHERE mc_uuid=?), page=?, announcer_delivery=NULL, referral=NULL");
+                    "INSERT INTO menu_opens SET user=(SELECT id FROM users WHERE mc_uuid=?), page=?, announcer_delivery=NULL, referral=NULL",
+                    Statement.RETURN_GENERATED_KEYS);
             s.setString(1, user);
             s.setInt(2, pageId);
-            s.execute();
+            s.executeUpdate();
+            ResultSet r = s.getGeneratedKeys();
+            r.next();
+            int openId = r.getInt(1);
+            inventory.setId(openId);
             s.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -85,12 +90,12 @@ public class MenuOpen {
         }
     }
 
-    public void fromReferral(UUID user, String pageName, String referral) {
+    public void fromReferral(UUID user, String pageName, String referral, MenuInventory inventory) {
         Bukkit.getScheduler().runTaskAsynchronously(ABPromoter.getInstance(),
-                () -> fromReferralAsync(user.toString(), pageName, referral));
+                () -> fromReferralAsync(user.toString(), pageName, referral, inventory));
     }
 
-    private void fromReferralAsync(String user, String pageName, String referral) {
+    private void fromReferralAsync(String user, String pageName, String referral, MenuInventory inventory) {
         try (Connection c = pool.getConnection()) {
             int pageId = menuPageTranslator.idOfString(pageName);
             int referralId = referralIdTranslator.idOfString(referral);
@@ -99,7 +104,11 @@ public class MenuOpen {
             s.setString(1, user);
             s.setInt(2, pageId);
             s.setInt(3, referralId);
-            s.execute();
+            s.executeUpdate();
+            ResultSet r = s.getGeneratedKeys();
+            r.next();
+            int openId = r.getInt(1);
+            inventory.setId(openId);
             s.close();
         } catch (SQLException e) {
             e.printStackTrace();
