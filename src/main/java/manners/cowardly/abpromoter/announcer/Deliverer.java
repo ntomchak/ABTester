@@ -37,6 +37,11 @@ public class Deliverer {
         playerMessageGroups.put(p.getUniqueId(), group);
         scheduler.scheduleNextDelivery(p, group.secondsAfterLogin());
     }
+    
+    
+    public void updateMessageGroup(UUID player, MessageGroup group) {
+        playerMessageGroups.put(player, group);   
+    }
 
     /**
      * only for logging out
