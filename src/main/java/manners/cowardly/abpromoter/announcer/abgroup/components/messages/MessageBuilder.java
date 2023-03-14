@@ -25,6 +25,10 @@ public class MessageBuilder {
     public DeliverableMessage getMessage() {
         return new DeliverableMessage();
     }
+    
+    public String toString() {
+        return rawMessage;
+    }
 
     private class BuildBuilder {
         public BuildBuilder(List<String> rawText) {
