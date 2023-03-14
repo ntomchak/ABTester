@@ -24,7 +24,7 @@ public class MessageLists {
         lists = new HashMap<String, MessageList>();
         for (String key : msgListSection.getKeys(false)) {
             ConfigurationSection listSection = msgListSection.getConfigurationSection(key);
-            lists.put(key, new MessageList(listSection, messages));
+            lists.put(key, new MessageList(listSection, messages, key));
         }
     }
 
@@ -47,10 +47,12 @@ public class MessageLists {
      */
     public class MessageList {
         private WeightedProbabilities<MessageBuilder> messages = new WeightedProbabilities<MessageBuilder>();
+        private String name;
 
-        public MessageList(ConfigurationSection listSection, Messages messages) {
+        public MessageList(ConfigurationSection listSection, Messages messages, String name) {
             Set<String> keys = listSection.getKeys(false);
             keys.forEach(key -> loadMessage(messages, key, listSection.getInt(key)));
+            this.name = name;
         }
 
         private void loadMessage(Messages messages, String name, int weight) {
@@ -65,6 +67,10 @@ public class MessageLists {
         }
 
         public MessageBuilder getRandomMessage() {
+            if (messages.isEmpty()) {
+                ABPromoter.getInstance().getLogger().severe(name + " message list is empty.");
+                return null;
+            }
             return messages.sample();
         }
     }
