@@ -27,16 +27,30 @@ messageLists:
     # new line character for hover text (excluding quotes): '$n$'
     # no color codes inside link text, inside hover text is ok
     promotions:
-    - '§b[Link Test(promotions)](ranks){§bHover §6text$n$line §b2}'
-    - 'Test2'
-    help:
-    - 'Test'
-    - '§b[Link Test(help)](ranks){§bHover §6text$n$line §b2}'
-    vipUpgrade:
-    - 'Test'
-    - '§b[Link Test(vipUpgrade)](ranks){§bHover §6text$n$line §b2}'
+        promotionTest: 10
+        helpTest: 4
     defaultTest:
-    - '§b[Link Test(defaultTest)](ranks){§bHover §6text$n$line §b2}'
+        promotionTest: 10
+        helpTest: 4
+        defaultTest: 23
+messages:
+    promotionTest:
+    - "<text [color=red][formatting=bold][hovertext='§c§lHover text']> Text"
+    - "<new_line>"
+    - "<text>Text "
+    - "ttt"
+    helpTest:
+    - "<text [color=red][formatting=bold][hovertext='§c§lHover thelpt']> help"
+    - "<text>Text "
+    - "<new_line>"
+    - "ttt"
+    defaultTest:
+    - "<text [color=red][formatting=bold][hovertext='§c§lHdefault']> default"
+    - "<new_line>"
+    - "<text>Text"
+    - "<menu_link [color=#8B0000][formatting=underline]>Hello"
+    - "def"
+    - "<legacy_text>§c§lHe`llo"
 # if a player does not fit in any message groups, they get this
 defaultMessageGroup:
     messageLists:
