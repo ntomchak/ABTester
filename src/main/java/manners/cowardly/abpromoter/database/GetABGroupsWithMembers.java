@@ -4,8 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.database.connect.ConnectionPool;
@@ -18,9 +18,9 @@ public class GetABGroupsWithMembers {
     }
 
     // from async or sync during startup/reload
-    public Collection<String> abGroupsWithMembers(String tableName, String usersTableColumnName) {
+    public Set<String> abGroupsWithMembers(String tableName, String usersTableColumnName) {
         try (Connection c = pool.getConnection()) {
-            Collection<String> groupNames = new ArrayList<String>();
+            Set<String> groupNames = new HashSet<String>();
             PreparedStatement s = c.prepareStatement(
                     "SELECT name FROM " + tableName + " WHERE EXISTS (SELECT 1 FROM users WHERE users."
                             + usersTableColumnName + " = " + tableName + ".id)");

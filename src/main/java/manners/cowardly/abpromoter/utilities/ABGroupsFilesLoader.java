@@ -5,28 +5,31 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.database.GetABGroupsWithMembers;
+import manners.cowardly.abpromoter.database.SaveABGroup;
 
 public class ABGroupsFilesLoader {
 
     private Map<String, ConfigurationSection> configs;
     private Map<String, Integer> weights;
+    private Set<String> groupsWithMembers;
     private boolean successful = false;
 
-    public ABGroupsFilesLoader(GetABGroupsWithMembers getDbABGroups, String directoryName, String abGroupsDbTableName,
-            String usersTableColumnName, String... defaultGroupNames) {
+    public ABGroupsFilesLoader(GetABGroupsWithMembers getDbABGroups, SaveABGroup saveGroupDb, String directoryName,
+            String abGroupsDbTableName, String usersTableColumnName, String... defaultGroupNames) {
         makeDirectoryIfNotExists(directoryName);
         weights = weights(directoryName);
         configs = groups(directoryName, defaultGroupNames);
-        Collection<String> groupsWithMembers = getDbABGroups.abGroupsWithMembers(abGroupsDbTableName,
-                usersTableColumnName);
+        groupsWithMembers = getDbABGroups.abGroupsWithMembers(abGroupsDbTableName, usersTableColumnName);
         checkWeightsForInvalidGroups(configs, weights, directoryName);
         successful = checkForMissingGroups(groupsWithMembers, configs, directoryName);
+        saveNewAbGroups(saveGroupDb, groupsWithMembers, configs.keySet());
     }
 
     public Map<String, ConfigurationSection> getGroupConfigs() {
@@ -37,8 +40,22 @@ public class ABGroupsFilesLoader {
         return weights;
     }
 
+    public Set<String> groupsWithMembers() {
+        return groupsWithMembers;
+    }
+
     public boolean successful() {
         return successful;
+    }
+
+    private void saveNewAbGroups(SaveABGroup saveGroupDb, Set<String> groupsWithMembers, Set<String> groupNames) {
+        groupNames.forEach(name -> insertGroupInDbIfNotPresent(saveGroupDb, groupsWithMembers, name));
+    }
+    
+    private void insertGroupInDbIfNotPresent(SaveABGroup saveGroupDb, Set<String> groupsWithMembers, String name) {
+        if(!groupsWithMembers.contains(name)) {
+            saveGroupDb.saveGroup(name, "announcer_ab_groups");
+        }
     }
 
     private boolean checkForMissingGroups(Collection<String> groupsWithMembers,
