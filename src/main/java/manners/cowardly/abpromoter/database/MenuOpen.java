@@ -31,6 +31,34 @@ public class MenuOpen {
     }
 
     // from sync
+    public void fromReload(UUID user, String pageName, MenuInventory inventory) {
+        Bukkit.getScheduler().runTaskAsynchronously(ABPromoter.getInstance(),
+                () -> fromReloadAsync(user.toString(), pageName, inventory));
+    }
+
+    private void fromReloadAsync(String user, String pageName, MenuInventory inventory) {
+        try (Connection c = pool.getConnection()) {
+            int pageId = menuPageTranslator.idOfString(pageName);
+            PreparedStatement s = c.prepareStatement(
+                    "INSERT INTO menu_opens SET user=(SELECT id FROM users WHERE mc_uuid=?), page=?, announcer_delivery=NULL, referral=NULL, from_reload=1",
+                    Statement.RETURN_GENERATED_KEYS);
+            s.setString(1, user);
+            s.setInt(2, pageId);
+            s.executeUpdate();
+            ResultSet r = s.getGeneratedKeys();
+            r.next();
+            int openId = r.getInt(1);
+            inventory.setId(openId);
+            s.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ABPromoter.getInstance().getLogger().severe(
+                    "Unable to insert into database the record of a menu open. The menu open happened as a result of a reload, the user is \""
+                            + user + "\" and the pageName is \"" + pageName + "\".");
+        }
+    }
+
+    // from sync
     public void fromDelivery(UUID user, String pageName, String token, MenuInventory inventory) {
         int deliveryId = tokenTranslator.idOfToken(token, user);
         Bukkit.getScheduler().runTaskAsynchronously(ABPromoter.getInstance(),

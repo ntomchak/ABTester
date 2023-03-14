@@ -37,6 +37,17 @@ public class PlayerABGroups {
         this.deliverer = deliverer;
     }
 
+    public void reloadMessageGroupPlacements() {
+        playerAnnouncerGroups.entrySet()
+                .forEach(entry -> updatePlayerMessageGroupPlacement(entry.getKey(), entry.getValue()));
+    }
+
+    private void updatePlayerMessageGroupPlacement(UUID uuid, AnnouncerABGroup abGroup) {
+        Player p = Bukkit.getPlayer(uuid);
+        MessageGroup msgGroup = abGroup.msgGroupOfPlayer(p);
+        deliverer.updateMessageGroup(uuid, msgGroup);
+    }
+
     public MenuABGroup getPlayerMenuABGroup(UUID player) {
         return playerMenuGroups.get(player);
     }

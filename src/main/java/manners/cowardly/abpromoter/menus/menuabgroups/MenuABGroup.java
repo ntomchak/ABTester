@@ -69,6 +69,11 @@ public class MenuABGroup {
     public int getRows() {
         return rows;
     }
+    
+    public void reload(ConfigurationSection config) {
+        pageNameToPage = new HashMap<String, MenuPage>();
+        new LoadConfiguration(config);
+    }
 
     private class LoadConfiguration {
 

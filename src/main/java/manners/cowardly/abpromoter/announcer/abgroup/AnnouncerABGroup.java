@@ -26,7 +26,7 @@ public class AnnouncerABGroup {
         new LoadConfiguration(config, msgLists);
         Bukkit.getScheduler().runTaskTimer(ABPromoter.getInstance(), this::sortMsgGroupsByFrequency, 12000, 24000);
     }
-    
+
     public String getName() {
         return name;
     }
@@ -39,6 +39,13 @@ public class AnnouncerABGroup {
             }
         }
         return defaultMessageGroup;
+    }
+
+    public void reload(ConfigurationSection config) {
+        messageGroups = new ArrayList<MessageGroupEntry>();
+        Messages messages = new Messages(config.getConfigurationSection("messages"));
+        MessageLists msgLists = new MessageLists(config.getConfigurationSection("messageLists"), messages);
+        new LoadConfiguration(config, msgLists);
     }
 
     private void sortMsgGroupsByFrequency() {

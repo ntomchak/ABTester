@@ -29,6 +29,7 @@ public class MenuInventories {
     private MenuLinkClick linkClickDb;
     private MenuPageClick pageClickDb;
     private MenuClose closeDb;
+    private MenuInventoriesReload reload;
 
     public MenuInventories(PlayerABGroups playerGroups, MenuOpen menuOpenDb, AnnouncerTokenRecords playerTokens,
             MenuLinkClick linkClickDb, MenuPageClick pageClickDb, MenuClose closeDb) {
@@ -38,6 +39,15 @@ public class MenuInventories {
         this.linkClickDb = linkClickDb;
         this.pageClickDb = pageClickDb;
         this.closeDb = closeDb;
+    }
+    
+    public void reloadStart() {
+        reload = new MenuInventoriesReload();
+    }
+    
+    public void reloadEnd() {
+        reload.reopenInventories();
+        reload = null;
     }
 
     public void openFromDelivery(Player p, String token) {
@@ -234,6 +244,34 @@ public class MenuInventories {
             return Optional.empty();
         }
         return pages;
+    }
+
+    private class MenuInventoriesReload {
+        private Map<UUID, String> playerPagesDuringReload = new HashMap<UUID, String>();
+
+        public MenuInventoriesReload() {
+            menuInventories.entrySet()
+                    .forEach(entry -> savePageAndClose(entry.getKey(), entry.getValue().getPageName()));
+            menuInventories = new HashMap<UUID, MenuInventory>();
+        }
+
+        private void savePageAndClose(UUID player, String page) {
+            playerPagesDuringReload.put(player, page);
+            Bukkit.getPlayer(player).closeInventory();
+        }
+
+        public void reopenInventories() {
+            playerPagesDuringReload.entrySet().forEach(entry -> reopenInventory(entry.getKey(), entry.getValue()));
+        }
+
+        private void reopenInventory(UUID player, String page) {
+            Player p = Bukkit.getPlayer(player);
+            ABPromoter.getInstance().getLogger().info("Player " + p.getName()
+                    + " had a menu forcibly closed during reload, so it is being reopened for them.");
+            MenuInventory menu = openNoToken(p, page);
+            if (menu != null)
+                menuOpenDb.fromReload(player, page, menu);
+        }
     }
 
     public class MenuInventory {
