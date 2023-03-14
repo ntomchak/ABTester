@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import manners.cowardly.abpromoter.ABPromoter;
 import net.md_5.bungee.api.chat.BaseComponent;
 
 public abstract class MessagePiece {
