@@ -67,38 +67,48 @@ public class MenuInventories {
 
     public void openFromCommandDefaultPage(Player p) {
         MenuABGroup playerGroup = playerGroups.getPlayerMenuABGroup(p.getUniqueId());
-        if (openDefaultNoToken(p, playerGroup))
-            menuOpenDb.fromCommand(p.getUniqueId(), playerGroup.defaultPageName());
+        MenuInventory menu = openDefaultNoToken(p, playerGroup);
+        if (menu != null)
+            menuOpenDb.fromCommand(p.getUniqueId(), playerGroup.defaultPageName(), menu);
     }
 
     public void openFromCommand(Player p, String pageName) {
-        if (openNoToken(p, pageName))
-            menuOpenDb.fromCommand(p.getUniqueId(), pageName);
+        MenuInventory menu = openNoToken(p, pageName);
+        if (menu != null)
+            menuOpenDb.fromCommand(p.getUniqueId(), pageName, menu);
     }
 
     public void openFromReferral(Player p, String pageName, String referral) {
-        if (openNoToken(p, pageName))
-            menuOpenDb.fromReferral(p.getUniqueId(), pageName, referral);
+        MenuInventory menu = openNoToken(p, pageName);
+        if (menu != null)
+            menuOpenDb.fromReferral(p.getUniqueId(), pageName, referral, menu);
     }
 
     public void openFromReferralDefaultPage(Player p, String referral) {
         MenuABGroup playerGroup = playerGroups.getPlayerMenuABGroup(p.getUniqueId());
-        if (openDefaultNoToken(p, playerGroup))
-            menuOpenDb.fromReferral(p.getUniqueId(), playerGroup.defaultPageName(), referral);
+        MenuInventory menu = openDefaultNoToken(p, playerGroup);
+        if (menu != null)
+            menuOpenDb.fromReferral(p.getUniqueId(), playerGroup.defaultPageName(), referral, menu);
     }
 
-    private boolean openDefaultNoToken(Player p, MenuABGroup playerGroup) {
+    /**
+     * Return whether was able to open
+     * 
+     * @param p
+     * @param playerGroup
+     * @return
+     */
+    private MenuInventory openDefaultNoToken(Player p, MenuABGroup playerGroup) {
         Optional<MenuPage> page = playerGroup.getPage(playerGroup.defaultPageName());
         if (page.isEmpty()) {
             ABPromoter.getInstance().getLogger().severe("No valid default page when player " + p.getName()
                     + " tried to open menu from referral or player command without specifying page.");
-            return false;
+            return null;
         }
-
         MenuInventory menu = createAndOpenInventory(p, page.get(), playerGroup.getRows(), playerGroup.defaultPageName(),
                 playerGroup.menuTitle());
         menuInventories.put(p.getUniqueId(), menu);
-        return true;
+        return menu;
     }
 
     /**
@@ -108,7 +118,7 @@ public class MenuInventories {
      * @param pageName
      * @return
      */
-    private boolean openNoToken(Player p, String pageName) {
+    private MenuInventory openNoToken(Player p, String pageName) {
         MenuABGroup playerGroup = playerGroups.getPlayerMenuABGroup(p.getUniqueId());
 
         Optional<MenuPage> page = playerGroup.getPage(pageName);
@@ -120,7 +130,7 @@ public class MenuInventories {
                             + " had no valid pages, trying the default.");
             if (page.isEmpty()) {
                 ABPromoter.getInstance().getLogger().severe("No valid default page.");
-                return false;
+                return null;
             } else
                 ABPromoter.getInstance().getLogger().warning("Default is ok.");
         }
@@ -128,12 +138,11 @@ public class MenuInventories {
         MenuInventory menu = createAndOpenInventory(p, page.get(), playerGroup.getRows(), pageName,
                 playerGroup.menuTitle());
         menuInventories.put(p.getUniqueId(), menu);
-        return true;
+        return menu;
     }
 
     /**
-     * Checks if a click is of a menu inventory of this plugin and if so, handles it
-     * appropriately
+     * Checks if a click event should be cancelled
      * 
      * @param p
      * @param inv
@@ -141,22 +150,29 @@ public class MenuInventories {
      * @return true if the click event should be cancelled
      */
     public boolean click(Player p, Inventory inv, int indexClicked) {
-        MenuInventory menu = menuInventories.get(p.getUniqueId());
-        if (menu != null && menu.getInventory().equals(inv)) {
-            MenuABGroup playerGroup = playerGroups.getPlayerMenuABGroup(p.getUniqueId());
-            MenuPage page = playerGroup.getPage(menu.getPageName()).get();
-            Optional<ButtonLink> buttonLink = page.linkAt(indexClicked);
-            if (buttonLink.isPresent()) {
-                buttonLink(p, playerGroup, buttonLink.get(), menu);
+        try {
+            MenuInventory menu = menuInventories.get(p.getUniqueId());
+            if (menu != null && menu.getInventory().equals(inv)) {
+                MenuABGroup playerGroup = playerGroups.getPlayerMenuABGroup(p.getUniqueId());
+                MenuPage page = playerGroup.getPage(menu.getPageName()).get();
+                Optional<ButtonLink> buttonLink = page.linkAt(indexClicked);
+                if (buttonLink.isPresent()) {
+                    buttonLink(p, playerGroup, buttonLink.get(), menu);
+                }
+                return true;
             }
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            ABPromoter.getInstance().getLogger()
+                    .severe("There was a problem processing a click event for player " + p.getName() + ".");
             return true;
         }
-        return false;
     }
 
     public void close(UUID player, Inventory inv) {
         MenuInventory menu = menuInventories.get(player);
-        if (menu.getInventory().equals(inv)) {
+        if (menu != null && menu.getInventory().equals(inv)) {
             menuInventories.remove(player);
             closeDb.recordMenuClose(menu.openId);
         }
