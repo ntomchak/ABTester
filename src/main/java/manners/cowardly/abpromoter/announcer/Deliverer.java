@@ -45,6 +45,7 @@ public class Deliverer {
      */
     public void cancelDeliveries(Player p) {
         scheduler.cancelDeliveries(p);
+        playerMessageGroups.remove(p.getUniqueId());
     }
 
     private void deliver(Player p) {
