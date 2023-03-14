@@ -66,7 +66,7 @@ public class MenuABGroups {
                 if (!groupFile.exists()) {
                     ABPromoter.getInstance().getLogger()
                             .warning(directory + "/" + entry.getKey() + ".yml for menu ab_group '" + entry.getKey()
-                                    + "' does not exist. Not loading this group.");
+                                    + "', which is listed in the group weights, does not exist. Not loading this group.");
                 } else {
                     YamlConfiguration groupConfig = YamlConfiguration.loadConfiguration(groupFile);
                     String name = entry.getKey();
