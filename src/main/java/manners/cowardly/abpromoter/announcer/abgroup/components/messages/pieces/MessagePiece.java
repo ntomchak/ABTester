@@ -22,12 +22,17 @@ public abstract class MessagePiece {
             String text = matcher.group(3);
             return fromParts(tag, attributesStr, text);
         } else {
-            ABPromoter.getInstance().getLogger().warning("'" + rawText + "' is not a valid message piece");
-            return null;
+            return new LegacyTextPiece(rawText);
         }
     }
 
     private static MessagePiece fromParts(String tag, String attributesStr, String text) {
+        if (tag == null)
+            tag = "";
+        if (attributesStr == null)
+            attributesStr = "";
+        if (text == null)
+            text = "";
         switch (tag) {
         case "text":
             return new TextPiece(attributes(attributesStr), text);
@@ -49,8 +54,8 @@ public abstract class MessagePiece {
         while (matcher.find()) {
             String attribute = matcher.group(1);
             String value = matcher.group(2);
-            if(attribute != null) {
-                if(value == null)
+            if (attribute != null) {
+                if (value == null)
                     attributes.put(attribute, "");
                 else
                     attributes.put(attribute, value);

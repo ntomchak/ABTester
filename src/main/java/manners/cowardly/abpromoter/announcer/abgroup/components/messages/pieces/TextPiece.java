@@ -40,9 +40,9 @@ public class TextPiece extends MessagePiece {
 
     private void setFormatting(BaseComponent component, Map<String, String> attributes) {
         String formattingStr = attributes.remove("formatting");
-        formattingStr = formattingStr.replaceAll(" ", "");
         if (formattingStr == null)
             return;
+        formattingStr = formattingStr.replaceAll(" ", "");
         for (String option : formattingStr.split(","))
             setFormatting(component, option);
     }
@@ -57,7 +57,7 @@ public class TextPiece extends MessagePiece {
         String colorStr = attributes.remove("color");
         if (colorStr == null)
             component.setColor(ChatColor.WHITE);
-        if (colorStr.startsWith("#"))
+        else if (colorStr.startsWith("#"))
             component.setColor(colorFromHex(colorStr));
         else if (colorStr.startsWith("&") && colorStr.length() == 2)
             component.setColor(colorFromCode(colorStr));

@@ -17,7 +17,11 @@ public class MenuLinkPiece extends TextPiece {
 
     private void setPages(Map<String, String> attributes) {
         String pagesRaw = attributes.remove("pages");
-        pagesRaw = pagesRaw.replaceAll(" ", "");
-        pages = pagesRaw.split(",");
+        if (pagesRaw == null)
+            pages = new String[0];
+        else {
+            pagesRaw = pagesRaw.replaceAll(" ", "");
+            pages = pagesRaw.split(",");
+        }
     }
 }
