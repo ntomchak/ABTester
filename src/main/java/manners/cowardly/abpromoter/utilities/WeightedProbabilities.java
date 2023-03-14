@@ -27,6 +27,10 @@ public class WeightedProbabilities<T> {
     public WeightedProbabilities() {
     }
 
+    public boolean isEmpty() {
+        return probabilities.isEmpty();
+    }
+
     /**
      * null if distribution is empty, O(logn)
      * 
@@ -36,7 +40,6 @@ public class WeightedProbabilities<T> {
         if (probabilities.isEmpty())
             return null;
         double roll = ThreadLocalRandom.current().nextDouble(0, max);
-
         return probabilities.ceilingEntry(roll).getValue();
     }
 
@@ -51,7 +54,7 @@ public class WeightedProbabilities<T> {
         if (prob <= 0)
             return false;
         max += prob;
-        probabilities.put(prob, t);
+        probabilities.put(max, t);
         return true;
     }
 
