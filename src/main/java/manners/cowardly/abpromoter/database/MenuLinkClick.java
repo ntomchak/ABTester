@@ -13,9 +13,10 @@ import manners.cowardly.abpromoter.database.translator.StringIdTranslator;
 public class MenuLinkClick {
     private ConnectionPool pool;
     private StringIdTranslator buttonNameTranslator;
-    
+
     public MenuLinkClick(ConnectionPool pool, StringIdTranslator buttonNameTranslator) {
         this.pool = pool;
+        this.buttonNameTranslator = buttonNameTranslator;
     }
 
     // from sync
