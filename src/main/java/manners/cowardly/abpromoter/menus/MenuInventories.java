@@ -243,6 +243,7 @@ public class MenuInventories {
 
         public MenuInventory(Inventory inventory, String pageName) {
             this.inventory = inventory;
+            this.pageName = pageName;
         }
 
         public String getPageName() {
