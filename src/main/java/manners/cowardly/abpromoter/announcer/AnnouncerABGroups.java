@@ -14,7 +14,7 @@ import manners.cowardly.abpromoter.database.SaveABGroup;
 import manners.cowardly.abpromoter.utilities.WeightedProbabilities;
 
 public class AnnouncerABGroups {
-    private WeightedProbabilities<AnnouncerABGroup> groups = new WeightedProbabilities<AnnouncerABGroup>();;
+    private WeightedProbabilities<AnnouncerABGroup> groups = new WeightedProbabilities<AnnouncerABGroup>();
     private Map<String, AnnouncerABGroup> groupNames = new HashMap<String, AnnouncerABGroup>();
 
     public AnnouncerABGroups(SaveABGroup saveGroupDb) {
@@ -66,7 +66,7 @@ public class AnnouncerABGroups {
                 if (!groupFile.exists()) {
                     ABPromoter.getInstance().getLogger()
                             .warning(directory + "/" + entry.getKey() + ".yml for announcer ab_group '" + entry.getKey()
-                                    + "' does not exist. Not loading this group.");
+                                    + "', which is listed in the group weights, does not exist. Not loading this group.");
                 } else {
                     String name = entry.getKey();
                     YamlConfiguration groupConfig = YamlConfiguration.loadConfiguration(groupFile);
