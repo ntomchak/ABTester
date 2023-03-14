@@ -1,6 +1,7 @@
 package manners.cowardly.abpromoter.utilities;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -25,6 +26,10 @@ public class WeightedProbabilities<T> {
     }
 
     public WeightedProbabilities() {
+    }
+
+    public Collection<T> values() {
+        return Collections.unmodifiableCollection(probabilities.values());
     }
 
     public boolean isEmpty() {
