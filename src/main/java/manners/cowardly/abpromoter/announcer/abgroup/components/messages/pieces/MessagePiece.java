@@ -13,6 +13,8 @@ public abstract class MessagePiece {
     private static Pattern wholeStringPattern = Pattern.compile("<(.*?)(?: (\\[.*?=.*?\\]))??>\\s?(.*?)");
     private static Pattern attributesPattern = Pattern.compile("\\[(.*?)=(.*?)\\]");
 
+    public abstract void appendComponents(List<BaseComponent> list);
+    
     public static MessagePiece fromRawText(String rawText) {
         Matcher matcher = wholeStringPattern.matcher(rawText);
         if (matcher.matches()) {
@@ -62,6 +64,4 @@ public abstract class MessagePiece {
         }
         return attributes;
     }
-
-    public abstract void addComponents(List<BaseComponent> list);
 }

@@ -25,7 +25,7 @@ public class TextPiece extends MessagePiece {
     }
 
     @Override
-    public void addComponents(List<BaseComponent> list) {
+    public void appendComponents(List<BaseComponent> list) {
         list.add(component);
     }
 

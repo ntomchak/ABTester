@@ -8,7 +8,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 public class NewLinePiece extends MessagePiece {
 
     @Override
-    public void addComponents(List<BaseComponent> list) {
+    public void appendComponents(List<BaseComponent> list) {
         list.add(new TextComponent("\n"));
     }
 

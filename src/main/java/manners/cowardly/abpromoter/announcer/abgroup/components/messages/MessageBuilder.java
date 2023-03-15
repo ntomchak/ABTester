@@ -44,7 +44,7 @@ public class MessageBuilder {
 
         private void addPiece(String rawPiece, List<BaseComponent> components) {
             MessagePiece piece = MessagePiece.fromRawText(rawPiece);
-            piece.addComponents(components);
+            piece.appendComponents(components);
             if (piece instanceof MenuLinkPiece)
                 saveClickablePiece(components.size() - 1, (MenuLinkPiece) piece);
         }
