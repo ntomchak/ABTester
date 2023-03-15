@@ -2,16 +2,12 @@ package manners.cowardly.abpromoter.announcer;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
-
-import manners.cowardly.abpromoter.ABPromoter;
+import manners.cowardly.abpromoter.abgrouploading.ABGroupsLoadInfo;
+import manners.cowardly.abpromoter.abgrouploading.ABGroupsReloadInfo;
 import manners.cowardly.abpromoter.announcer.abgroup.AnnouncerABGroup;
 import manners.cowardly.abpromoter.database.GetABGroupsWithMembers;
 import manners.cowardly.abpromoter.database.SaveABGroup;
-import manners.cowardly.abpromoter.utilities.ABGroupsFilesLoader;
 import manners.cowardly.abpromoter.utilities.WeightedProbabilities;
 
 public class AnnouncerABGroups {
@@ -19,7 +15,22 @@ public class AnnouncerABGroups {
     private Map<String, AnnouncerABGroup> groupNames = new HashMap<String, AnnouncerABGroup>();
 
     public AnnouncerABGroups(GetABGroupsWithMembers getDbABGroups, SaveABGroup saveGroupDb) {
-        new LoadConfiguration(getDbABGroups, saveGroupDb);
+        load(getDbABGroups, saveGroupDb);
+    }
+
+    public ABGroupsReloadInfo<AnnouncerABGroup> reloader(GetABGroupsWithMembers getDbABGroups,
+            SaveABGroup saveGroupDb) {
+        return new ABGroupsReloadInfo<AnnouncerABGroup>(AnnouncerABGroup::new, getDbABGroups, saveGroupDb,
+                groupsProbabilities, groupNames, "announcer", "announcer_ab_groups", "announcer_ab_group", "announcer1",
+                "announcer2");
+    }
+
+    private void load(GetABGroupsWithMembers getDbABGroups, SaveABGroup saveGroupDb) {
+        ABGroupsLoadInfo<AnnouncerABGroup> load = new ABGroupsLoadInfo<AnnouncerABGroup>(AnnouncerABGroup::new,
+                getDbABGroups, saveGroupDb, "announcer", "announcer_ab_groups", "announcer_ab_group", "announcer1",
+                "announcer2");
+        groupsProbabilities = load.groupsProbabilities();
+        groupNames = load.groupNames();
     }
 
     public AnnouncerABGroup selectRandomGroup() {
@@ -28,30 +39,5 @@ public class AnnouncerABGroups {
 
     public AnnouncerABGroup getGroup(String name) {
         return groupNames.get(name);
-    }
-
-    private class LoadConfiguration {
-        public LoadConfiguration(GetABGroupsWithMembers getDbABGroups, SaveABGroup saveGroupDb) {
-            ABGroupsFilesLoader filesLoader = new ABGroupsFilesLoader(getDbABGroups, saveGroupDb, "announcer",
-                    "announcer_ab_groups", "announcer_ab_group", "announcer1", "announcer2");
-            if (filesLoader.successful()) {
-                saveGroups(filesLoader.getGroupConfigs(), filesLoader.getWeights());
-            } else {
-                ABPromoter.getInstance().getLogger()
-                        .severe("Due to the plugin being loaded unsuccessfully, the plugin will be disabled.");
-                Bukkit.getPluginManager().disablePlugin(ABPromoter.getInstance());
-            }
-        }
-
-        private void saveGroups(Map<String, ConfigurationSection> groups, Map<String, Integer> weights) {
-            for (Entry<String, ConfigurationSection> entry : groups.entrySet()) {
-                AnnouncerABGroup group = new AnnouncerABGroup(entry.getValue(), entry.getKey());
-                groupNames.put(entry.getKey(), group);
-
-                Integer weight = weights.get(entry.getKey());
-                if (weight != null)
-                    AnnouncerABGroups.this.groupsProbabilities.add(group, weight.doubleValue());
-            }
-        }
     }
 }

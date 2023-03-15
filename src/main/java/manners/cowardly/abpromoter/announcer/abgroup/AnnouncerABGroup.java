@@ -10,11 +10,12 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import manners.cowardly.abpromoter.ABPromoter;
+import manners.cowardly.abpromoter.abgrouploading.ABGroup;
 import manners.cowardly.abpromoter.announcer.abgroup.components.MessageGroup;
 import manners.cowardly.abpromoter.announcer.abgroup.components.MessageLists;
 import manners.cowardly.abpromoter.announcer.abgroup.components.Messages;
 
-public class AnnouncerABGroup {
+public class AnnouncerABGroup implements ABGroup {
     private List<MessageGroupEntry> messageGroups = new ArrayList<MessageGroupEntry>();
     private MessageGroup defaultMessageGroup;
     private String name;

@@ -11,9 +11,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import manners.cowardly.abpromoter.ABPromoter;
+import manners.cowardly.abpromoter.abgrouploading.ABGroup;
 import manners.cowardly.abpromoter.utilities.Utilities;
 
-public class MenuABGroup {
+public class MenuABGroup implements ABGroup {
     private Map<String, MenuPage> pageNameToPage = new HashMap<String, MenuPage>();
     private String defaultPage;
     private String menuTitle;
@@ -24,7 +25,7 @@ public class MenuABGroup {
         new LoadConfiguration(config);
         this.name = name;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -69,7 +70,7 @@ public class MenuABGroup {
     public int getRows() {
         return rows;
     }
-    
+
     public void reload(ConfigurationSection config) {
         pageNameToPage = new HashMap<String, MenuPage>();
         new LoadConfiguration(config);
