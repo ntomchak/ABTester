@@ -16,6 +16,7 @@ public class MenuTokenCommand implements CommandExecutor {
 
     public MenuTokenCommand(MenuInventories menuInventories, AnnouncerClick clickDb) {
         this.menuInventories = menuInventories;
+        this.clickDb = clickDb;
     }
 
     @Override
