@@ -35,7 +35,7 @@ public class AnnouncerClick {
     // from async
     private void insert(int id) {
         try (Connection c = pool.getConnection()) {
-            PreparedStatement s = c.prepareStatement("INSERT INTO announcer_clicks (deliver) VALUES (?)");
+            PreparedStatement s = c.prepareStatement("INSERT INTO announcer_clicks (delivery) VALUES (?)");
             s.setInt(1, id);
             s.execute();
             s.close();

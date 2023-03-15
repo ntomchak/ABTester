@@ -20,15 +20,19 @@ public class AnnouncerTokenRecords {
 
     public void storeToken(UUID user, MessageTokenInfo token) {
         UserTokens tokens = users.get(user);
-        if (tokens == null)
+        if (tokens == null) {
             tokens = new UserTokens();
+            users.put(user, tokens);
+        }
         tokens.insertRecord(token);
     }
 
     public void storeTokens(UUID user, Collection<MessageTokenInfo> tokens) {
         UserTokens tokensData = users.get(user);
-        if (tokensData == null)
+        if (tokensData == null) {
             tokensData = new UserTokens();
+            users.put(user, tokensData);
+        }
         tokensData.insertRecords(tokens);
     }
 
