@@ -28,6 +28,10 @@ public class WeightedProbabilities<T> {
     public WeightedProbabilities() {
     }
 
+    public void setContents(WeightedProbabilities<T> toCopy) {
+        probabilities = toCopy.probabilities;
+    }
+
     public Collection<T> values() {
         return Collections.unmodifiableCollection(probabilities.values());
     }
