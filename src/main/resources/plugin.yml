@@ -11,3 +11,5 @@ commands:
     description: 'Menu referral'
   abpmto:
     description: 'Menu through delivery'
+  abpromoter:
+    description: 'admin'
