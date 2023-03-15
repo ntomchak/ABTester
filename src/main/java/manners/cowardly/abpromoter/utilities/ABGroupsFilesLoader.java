@@ -16,28 +16,28 @@ import manners.cowardly.abpromoter.database.SaveABGroup;
 
 public class ABGroupsFilesLoader {
 
-    private Map<String, ConfigurationSection> configs;
-    private Map<String, Integer> weights;
+    private Map<String, ConfigurationSection> groupConfigs;
+    private Map<String, Integer> groupWeights;
     private Set<String> groupsWithMembers;
     private boolean successful = false;
 
     public ABGroupsFilesLoader(GetABGroupsWithMembers getDbABGroups, SaveABGroup saveGroupDb, String directoryName,
             String abGroupsDbTableName, String usersTableColumnName, String... defaultGroupNames) {
         makeDirectoryIfNotExists(directoryName);
-        weights = weights(directoryName);
-        configs = groups(directoryName, defaultGroupNames);
+        groupWeights = weights(directoryName);
+        groupConfigs = groups(directoryName, defaultGroupNames);
         groupsWithMembers = getDbABGroups.abGroupsWithMembers(abGroupsDbTableName, usersTableColumnName);
-        checkWeightsForInvalidGroups(configs, weights, directoryName);
-        successful = checkForMissingGroups(groupsWithMembers, configs, directoryName);
-        saveNewAbGroups(saveGroupDb, groupsWithMembers, configs.keySet());
+        checkWeightsForInvalidGroups(groupConfigs, groupWeights, directoryName);
+        successful = checkForMissingGroups(groupsWithMembers, groupConfigs, directoryName);
+        saveNewAbGroups(saveGroupDb, groupsWithMembers, groupConfigs.keySet());
     }
 
     public Map<String, ConfigurationSection> getGroupConfigs() {
-        return configs;
+        return groupConfigs;
     }
 
     public Map<String, Integer> getWeights() {
-        return weights;
+        return groupWeights;
     }
 
     public Set<String> groupsWithMembers() {
@@ -51,9 +51,9 @@ public class ABGroupsFilesLoader {
     private void saveNewAbGroups(SaveABGroup saveGroupDb, Set<String> groupsWithMembers, Set<String> groupNames) {
         groupNames.forEach(name -> insertGroupInDbIfNotPresent(saveGroupDb, groupsWithMembers, name));
     }
-    
+
     private void insertGroupInDbIfNotPresent(SaveABGroup saveGroupDb, Set<String> groupsWithMembers, String name) {
-        if(!groupsWithMembers.contains(name)) {
+        if (!groupsWithMembers.contains(name)) {
             saveGroupDb.saveGroup(name, "announcer_ab_groups");
         }
     }
@@ -65,7 +65,8 @@ public class ABGroupsFilesLoader {
             if (!groupConfigs.containsKey(dbGroupName)) {
                 success = false;
                 ABPromoter.getInstance().getLogger().severe("There are players who are a member of the " + directoryName
-                        + " ab_group, however, there is no config file for this group. As a result, this load will be regarded as unsuccessful.");
+                        + " ab_group '" + dbGroupName
+                        + "', however, there is no config file for this group. As a result, this load will be regarded as unsuccessful.");
             }
         }
         return success;
@@ -86,7 +87,7 @@ public class ABGroupsFilesLoader {
     }
 
     private void makeDirectoryIfNotExists(String directoryName) {
-        File directory = new File(directoryName);
+        File directory = new File(ABPromoter.getInstance().getDataFolder() + "/" + directoryName);
         if (!directory.exists())
             directory.mkdir();
     }
@@ -105,7 +106,7 @@ public class ABGroupsFilesLoader {
     }
 
     private File[] groupConfigFiles(String directoryName, String... defaultGroupNames) {
-        String groupsDirectoryName = directoryName + "/ab_groups";
+        String groupsDirectoryName = ABPromoter.getInstance().getDataFolder() + "/" + directoryName + "/ab_groups";
         File groupsDirectory = new File(groupsDirectoryName);
         if (!groupsDirectory.exists()) {
             groupsDirectory.mkdir();
@@ -115,12 +116,14 @@ public class ABGroupsFilesLoader {
     }
 
     private void saveDefaultGroups(String groupsDirectoryName, String... defaultGroupNames) {
-        for (String group : defaultGroupNames)
+        for (String group : defaultGroupNames) {
+            System.out.println(groupsDirectoryName + "/" + group + ".yml");
             ABPromoter.getInstance().saveResource(groupsDirectoryName + "/" + group + ".yml", false);
+        }
     }
 
     private Map<String, Integer> weights(String directoryName) {
-        String fileName = directoryName + '/' + "ab_group_weights.yml";
+        String fileName = ABPromoter.getInstance().getDataFolder() + "/" + directoryName + '/' + "ab_group_weights.yml";
         File weightsFile = new File(fileName);
         if (!weightsFile.exists()) {
             ABPromoter.getInstance().saveResource(fileName, false);

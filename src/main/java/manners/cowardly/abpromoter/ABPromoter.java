@@ -9,6 +9,7 @@ import manners.cowardly.abpromoter.announcer.AnnouncerTokenRecords;
 import manners.cowardly.abpromoter.announcer.Deliverer;
 import manners.cowardly.abpromoter.database.AnnouncerClick;
 import manners.cowardly.abpromoter.database.AnnouncerDeliveries;
+import manners.cowardly.abpromoter.database.GetABGroupsWithMembers;
 import manners.cowardly.abpromoter.database.GetPlayerABGroups;
 import manners.cowardly.abpromoter.database.InsertPlayerABGroups;
 import manners.cowardly.abpromoter.database.MenuClose;
@@ -69,10 +70,11 @@ public class ABPromoter extends JavaPlugin {
         MenuLinkClick linkClickDb = new MenuLinkClick(pool, buttonNameTranslator);
         MenuOpen menuOpenDb = new MenuOpen(pool, menuPageTranslator, referralIdTranslator, tokenTranslator);
         MenuPageClick pageClickDb = new MenuPageClick(pool, menuPageTranslator, buttonNameTranslator);
+        GetABGroupsWithMembers abGroupsWithMembers = new GetABGroupsWithMembers(pool);
 
         // ab groups
-        AnnouncerABGroups announcerGroups = new AnnouncerABGroups(saveGroupDb);
-        MenuABGroups menuGroups = new MenuABGroups(saveGroupDb);
+        AnnouncerABGroups announcerGroups = new AnnouncerABGroups(abGroupsWithMembers, saveGroupDb);
+        MenuABGroups menuGroups = new MenuABGroups(abGroupsWithMembers, saveGroupDb);
 
         // deliverer
         Deliverer deliverer = new Deliverer(deliveriesDb, tokenRecords);

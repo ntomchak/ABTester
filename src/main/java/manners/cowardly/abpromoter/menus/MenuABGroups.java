@@ -30,7 +30,7 @@ public class MenuABGroups {
     private class LoadConfiguration {
         public LoadConfiguration(GetABGroupsWithMembers getDbABGroups, SaveABGroup saveGroupDb) {
             ABGroupsFilesLoader filesLoader = new ABGroupsFilesLoader(getDbABGroups, saveGroupDb, "menus",
-                    "menu_ab_groups", "menu_ab_group", "menu1", "menu2");
+                    "menu_ab_groups", "menu_ab_group", "menus1", "menus2");
             saveGroups(filesLoader.getGroupConfigs(), filesLoader.getWeights());
         }
 

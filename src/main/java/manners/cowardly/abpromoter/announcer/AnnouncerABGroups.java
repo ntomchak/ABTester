@@ -4,7 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+
+import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.announcer.abgroup.AnnouncerABGroup;
 import manners.cowardly.abpromoter.database.GetABGroupsWithMembers;
 import manners.cowardly.abpromoter.database.SaveABGroup;
@@ -31,7 +34,13 @@ public class AnnouncerABGroups {
         public LoadConfiguration(GetABGroupsWithMembers getDbABGroups, SaveABGroup saveGroupDb) {
             ABGroupsFilesLoader filesLoader = new ABGroupsFilesLoader(getDbABGroups, saveGroupDb, "announcer",
                     "announcer_ab_groups", "announcer_ab_group", "announcer1", "announcer2");
-            saveGroups(filesLoader.getGroupConfigs(), filesLoader.getWeights());
+            if (filesLoader.successful()) {
+                saveGroups(filesLoader.getGroupConfigs(), filesLoader.getWeights());
+            } else {
+                ABPromoter.getInstance().getLogger()
+                        .severe("Due to the plugin being loaded unsuccessfully, the plugin will be disabled.");
+                Bukkit.getPluginManager().disablePlugin(ABPromoter.getInstance());
+            }
         }
 
         private void saveGroups(Map<String, ConfigurationSection> groups, Map<String, Integer> weights) {
