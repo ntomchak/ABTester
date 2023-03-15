@@ -40,11 +40,11 @@ public class MenuInventories {
         this.pageClickDb = pageClickDb;
         this.closeDb = closeDb;
     }
-    
+
     public void reloadStart() {
         reload = new MenuInventoriesReload();
     }
-    
+
     public void reloadEnd() {
         reload.reopenInventories();
         reload = null;
@@ -250,14 +250,17 @@ public class MenuInventories {
         private Map<UUID, String> playerPagesDuringReload = new HashMap<UUID, String>();
 
         public MenuInventoriesReload() {
-            menuInventories.entrySet()
-                    .forEach(entry -> savePageAndClose(entry.getKey(), entry.getValue().getPageName()));
+            menuInventories.entrySet().forEach(entry -> savePage(entry.getKey(), entry.getValue().getPageName()));
             menuInventories = new HashMap<UUID, MenuInventory>();
+            playerPagesDuringReload.keySet().forEach(uuid -> closeInventory(uuid));
         }
 
-        private void savePageAndClose(UUID player, String page) {
-            playerPagesDuringReload.put(player, page);
+        private void closeInventory(UUID player) {
             Bukkit.getPlayer(player).closeInventory();
+        }
+
+        private void savePage(UUID player, String page) {
+            playerPagesDuringReload.put(player, page);
         }
 
         public void reopenInventories() {
