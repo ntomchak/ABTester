@@ -64,12 +64,19 @@ public class MessageGroup {
 
         private void loadPlayerEligibilityCheck(ConfigurationSection groupSection) {
             ConfigurationSection section = groupSection.getConfigurationSection("eligibility");
-            List<String> orGroups = section.getStringList("orGroups");
-            List<String> andGroups = section.getStringList("andGroups");
-            List<String> notGroups = section.getStringList("notGroups");
-            double playTimeMinimum = section.getDouble("playTimeMinimum", -1);
-            double playTimeMaximum = section.getDouble("playTimeMinimum", Integer.MAX_VALUE);
-            playerCheck = new CheckPlayerEligibility(orGroups, andGroups, notGroups, playTimeMinimum, playTimeMaximum);
+            if (section != null) {
+                List<String> orGroups = section.getStringList("orGroups");
+                List<String> andGroups = section.getStringList("andGroups");
+                List<String> notGroups = section.getStringList("notGroups");
+                double playTimeMinimum = section.getDouble("playTimeMinimum", -1);
+                double playTimeMaximum = section.getDouble("playTimeMaximum", Integer.MAX_VALUE);
+                playerCheck = new CheckPlayerEligibility(orGroups, andGroups, notGroups, playTimeMinimum,
+                        playTimeMaximum);
+            } else {
+                playerCheck = new CheckPlayerEligibility(new ArrayList<String>(1), new ArrayList<String>(1),
+                        new ArrayList<String>(1), 0, Integer.MAX_VALUE);
+            }
+
         }
 
         private void loadMessageLists(ConfigurationSection messageListsSection, MessageLists lists,
@@ -140,7 +147,8 @@ public class MessageGroup {
         }
 
         /**
-         * Returns true if the player is in all of the andGroups, or if there are no andGroups
+         * Returns true if the player is in all of the andGroups, or if there are no
+         * andGroups
          * 
          * @param p
          * @return
