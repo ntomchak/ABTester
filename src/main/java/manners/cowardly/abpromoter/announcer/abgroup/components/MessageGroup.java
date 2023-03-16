@@ -124,12 +124,15 @@ public class MessageGroup {
         }
 
         /**
-         * Returns true if the player is in at least one of the orGroups
+         * Returns true if the player is in at least one of the orGroups, or if orGroups
+         * is empty
          * 
          * @param p
          * @return
          */
         private boolean orGroups(Player p) {
+            if (orGroups.isEmpty())
+                return true;
             for (String group : orGroups)
                 if (ABPromoter.getPerms().playerInGroup(p, group))
                     return true;
@@ -137,7 +140,7 @@ public class MessageGroup {
         }
 
         /**
-         * Returns true if the player is in all of the andGroups
+         * Returns true if the player is in all of the andGroups, or if there are no andGroups
          * 
          * @param p
          * @return
