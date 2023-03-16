@@ -55,4 +55,27 @@ public class Utilities {
             return ChatColor.WHITE;
         }
     }
+
+    public static String timeAgoString(long secondsAgo) {
+        long timeAgo = secondsAgo;
+        if (timeAgo < 60)
+            return "less than 1 minute";
+        // minutes
+        timeAgo /= 60;
+        if (timeAgo == 1)
+            return "1 minute";
+        if (timeAgo < 120)
+            return timeAgo + " minutes";
+
+        // hours
+        timeAgo /= 60;
+        if (timeAgo < 48)
+            return timeAgo + " hours";
+
+        // days
+        timeAgo /= 24;
+        if (timeAgo == 1)
+            return "1 day";
+        return timeAgo + " days";
+    }
 }

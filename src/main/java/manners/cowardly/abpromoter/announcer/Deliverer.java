@@ -33,14 +33,18 @@ public class Deliverer {
         this.tokenRecords = tokenRecords;
     }
 
+    public String playerMessageGroupName(UUID player) {
+        MessageGroup group = playerMessageGroups.get(player);
+        return group == null ? null : group.getName();
+    }
+
     public void addPlayer(Player p, MessageGroup group) {
         playerMessageGroups.put(p.getUniqueId(), group);
         scheduler.scheduleNextDelivery(p, group.secondsAfterLogin());
     }
-    
-    
+
     public void updateMessageGroup(UUID player, MessageGroup group) {
-        playerMessageGroups.put(player, group);   
+        playerMessageGroups.put(player, group);
     }
 
     /**
@@ -64,6 +68,7 @@ public class Deliverer {
                 MessageBuilder msgBuilder = group.sampleMessage();
                 if (msgBuilder != null) {
                     DeliverableMessage msg = msgBuilder.getMessage();
+
                     msg.deliver(p);
 
                     // store tokens from message

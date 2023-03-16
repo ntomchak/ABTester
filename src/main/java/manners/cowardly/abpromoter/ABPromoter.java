@@ -86,15 +86,16 @@ public class ABPromoter extends JavaPlugin {
         // Menu inventories
         MenuInventories menuInventories = new MenuInventories(playerGroups, menuOpenDb, tokenRecords, linkClickDb,
                 pageClickDb, menuCloseDb);
-        
+
         // Reloader
-        Reloader reloader = new Reloader(menuInventories, announcerGroups, menuGroups, abGroupsWithMembers, saveGroupDb, playerGroups);
+        Reloader reloader = new Reloader(menuInventories, announcerGroups, menuGroups, abGroupsWithMembers, saveGroupDb,
+                playerGroups);
 
         // Menu commands
         getCommand("buy").setExecutor(new MenuPlayerCommand(menuInventories));
         getCommand("abpmre").setExecutor(new MenuReferralCommand(menuInventories));
         getCommand("abpmto").setExecutor(new MenuTokenCommand(menuInventories, announcerClickDb));
-        getCommand("abpromoter").setExecutor(new AdminCommand(reloader));
+        getCommand("abpromoter").setExecutor(new AdminCommand(reloader, playerGroups, deliverer));
 
         // Listeners
         Bukkit.getPluginManager().registerEvents(new InventoryListeners(menuInventories), instance);
