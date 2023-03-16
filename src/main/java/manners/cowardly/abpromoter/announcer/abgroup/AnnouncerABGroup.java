@@ -39,6 +39,8 @@ public class AnnouncerABGroup implements ABGroup {
                 return group.group;
             }
         }
+        ABPromoter.getInstance().getLogger().warning(p.getName()
+                + " was placed in the default announcer message group due to being ineligible for any other group.");
         return defaultMessageGroup;
     }
 
