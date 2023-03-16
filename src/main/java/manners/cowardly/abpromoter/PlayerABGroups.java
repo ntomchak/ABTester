@@ -35,6 +35,9 @@ public class PlayerABGroups {
         this.announcerGroups = announcerGroups;
         this.menuGroups = menuGroups;
         this.deliverer = deliverer;
+        
+        // update message groups every 10 minutes
+        Bukkit.getScheduler().runTaskTimer(ABPromoter.getInstance(), () -> reloadMessageGroupPlacements(), 12000, 12000);
     }
 
     public void reloadMessageGroupPlacements() {
