@@ -15,7 +15,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 public class MessageBuilder {
     private BaseComponent[] components;
     private List<MenuPageAndComponentIndex> clickableIndices = new ArrayList<MenuPageAndComponentIndex>();
-    private String menuCommand = "abpmto";
+    private String menuCommand = "/abpmto";
     private String rawMessage;
 
     public MessageBuilder(List<String> rawText) {
@@ -25,7 +25,7 @@ public class MessageBuilder {
     public DeliverableMessage getMessage() {
         return new DeliverableMessage();
     }
-    
+
     public String toString() {
         return rawMessage;
     }
