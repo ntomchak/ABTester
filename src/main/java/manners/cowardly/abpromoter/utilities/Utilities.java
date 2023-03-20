@@ -2,11 +2,19 @@ package manners.cowardly.abpromoter.utilities;
 
 import java.util.Optional;
 
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.meta.ItemMeta;
+
 import net.md_5.bungee.api.ChatColor;
 
 public class Utilities {
     public static int inventoryIndex(int row, int col) {
         return (row - 1) * 9 + (col - 1);
+    }
+    
+    public static String playerIp(Player p) {
+        return p.getAddress().getAddress().getHostAddress();
     }
 
     public static <T extends Enum<T>> Optional<T> enumFromString(Class<T> type, String str) {
@@ -15,6 +23,15 @@ public class Utilities {
         } catch (IllegalArgumentException | NullPointerException e) {
             return Optional.empty();
         }
+    }
+    
+    public static void hideFlags(ItemMeta meta) {
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
+        meta.addItemFlags(ItemFlag.HIDE_DYE);
+        meta.addItemFlags(ItemFlag.HIDE_PLACED_ON);
+        meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
     }
 
     public static ChatColor colorFromName(String str) {

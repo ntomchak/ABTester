@@ -1,6 +1,7 @@
 package manners.cowardly.abpromoter.menus;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -12,13 +13,18 @@ import org.bukkit.inventory.Inventory;
 import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.PlayerABGroups;
 import manners.cowardly.abpromoter.announcer.AnnouncerTokenRecords;
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder.DeliverableMessage;
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder.DeliverableMessage.MessageLinkTokenInfo;
 import manners.cowardly.abpromoter.database.MenuClose;
 import manners.cowardly.abpromoter.database.MenuLinkClick;
 import manners.cowardly.abpromoter.database.MenuOpen;
 import manners.cowardly.abpromoter.database.MenuPageClick;
+import manners.cowardly.abpromoter.menus.buttonlinks.ButtonLink;
+import manners.cowardly.abpromoter.menus.buttonlinks.ChatButtonLink;
+import manners.cowardly.abpromoter.menus.buttonlinks.PageButtonLink;
 import manners.cowardly.abpromoter.menus.menuabgroups.MenuABGroup;
 import manners.cowardly.abpromoter.menus.menuabgroups.MenuPage;
-import manners.cowardly.abpromoter.menus.menuabgroups.MenuPage.ButtonLink;
+import manners.cowardly.abpromoter.utilities.Utilities;
 
 public class MenuInventories {
 
@@ -30,15 +36,17 @@ public class MenuInventories {
     private MenuPageClick pageClickDb;
     private MenuClose closeDb;
     private MenuInventoriesReload reload;
+    private String webServerHostName;
 
     public MenuInventories(PlayerABGroups playerGroups, MenuOpen menuOpenDb, AnnouncerTokenRecords playerTokens,
-            MenuLinkClick linkClickDb, MenuPageClick pageClickDb, MenuClose closeDb) {
+            MenuLinkClick linkClickDb, MenuPageClick pageClickDb, MenuClose closeDb, String webServerHostName) {
         this.playerGroups = playerGroups;
         this.menuOpenDb = menuOpenDb;
         this.playerTokens = playerTokens;
         this.linkClickDb = linkClickDb;
         this.pageClickDb = pageClickDb;
         this.closeDb = closeDb;
+        this.webServerHostName = webServerHostName;
     }
 
     public void reloadStart() {
@@ -72,33 +80,34 @@ public class MenuInventories {
         MenuInventory menu = createAndOpenInventory(p, page.get(), playerGroup.getRows(), pageName.get(),
                 playerGroup.menuTitle());
         menuInventories.put(p.getUniqueId(), menu);
-        menuOpenDb.fromDelivery(p.getUniqueId(), pageName.get(), token, menu);
+        menuOpenDb.fromDelivery(p.getUniqueId(), pageName.get(), token, menu, Utilities.playerIp(p));
     }
 
     public void openFromCommandDefaultPage(Player p) {
         MenuABGroup playerGroup = playerGroups.getPlayerMenuABGroup(p.getUniqueId());
         MenuInventory menu = openDefaultNoToken(p, playerGroup);
         if (menu != null)
-            menuOpenDb.fromCommand(p.getUniqueId(), playerGroup.defaultPageName(), menu);
+            menuOpenDb.fromCommand(p.getUniqueId(), playerGroup.defaultPageName(), menu, Utilities.playerIp(p));
     }
 
     public void openFromCommand(Player p, String pageName) {
         MenuInventory menu = openNoToken(p, pageName);
         if (menu != null)
-            menuOpenDb.fromCommand(p.getUniqueId(), pageName, menu);
+            menuOpenDb.fromCommand(p.getUniqueId(), pageName, menu, Utilities.playerIp(p));
     }
 
     public void openFromReferral(Player p, String pageName, String referral) {
         MenuInventory menu = openNoToken(p, pageName);
         if (menu != null)
-            menuOpenDb.fromReferral(p.getUniqueId(), pageName, referral, menu);
+            menuOpenDb.fromReferral(p.getUniqueId(), pageName, referral, menu, Utilities.playerIp(p));
     }
 
     public void openFromReferralDefaultPage(Player p, String referral) {
         MenuABGroup playerGroup = playerGroups.getPlayerMenuABGroup(p.getUniqueId());
         MenuInventory menu = openDefaultNoToken(p, playerGroup);
         if (menu != null)
-            menuOpenDb.fromReferral(p.getUniqueId(), playerGroup.defaultPageName(), referral, menu);
+            menuOpenDb.fromReferral(p.getUniqueId(), playerGroup.defaultPageName(), referral, menu,
+                    Utilities.playerIp(p));
     }
 
     /**
@@ -180,6 +189,10 @@ public class MenuInventories {
         }
     }
 
+    public void closeAll() {
+        menuInventories.keySet().forEach(uuid -> Bukkit.getPlayer(uuid).closeInventory());
+    }
+
     public void close(UUID player, Inventory inv) {
         MenuInventory menu = menuInventories.get(player);
         if (menu != null && menu.getInventory().equals(inv)) {
@@ -189,15 +202,15 @@ public class MenuInventories {
     }
 
     private void buttonLink(Player p, MenuABGroup playerGroup, ButtonLink buttonLink, MenuInventory menu) {
-        if (buttonLink.isChatLink()) {
-            chatLink(p, buttonLink, menu);
-        } else {
-            pageLink(menu, playerGroup, buttonLink);
+        if (buttonLink instanceof ChatButtonLink) {
+            chatLink(p, (ChatButtonLink) buttonLink, menu);
+        } else if (buttonLink instanceof PageButtonLink) {
+            pageLink(menu, playerGroup, (PageButtonLink) buttonLink);
         }
     }
 
-    private void pageLink(MenuInventory menu, MenuABGroup playerGroup, ButtonLink buttonLink) {
-        Optional<String> pageName = playerGroup.firstValidPageOrDefault(buttonLink.getContents());
+    private void pageLink(MenuInventory menu, MenuABGroup playerGroup, PageButtonLink buttonLink) {
+        Optional<String> pageName = playerGroup.firstValidPageOrDefault(buttonLink.getPages());
         if (pageName.isEmpty()) {
             ABPromoter.getInstance().getLogger().severe("Button name: " + buttonLink.getButtonName() + ", open id: "
                     + menu.openId + ", no valid pages or default page upon clicking a page link");
@@ -209,11 +222,14 @@ public class MenuInventories {
         menu.pageName = pageName.get();
     }
 
-    private void chatLink(Player p, ButtonLink link, MenuInventory menu) {
-        // TODO make sure this fires menu close event
+    private void chatLink(Player p, ChatButtonLink link, MenuInventory menu) {
         p.closeInventory();
-        link.getContents().forEach(line -> p.sendMessage(line));
-        linkClickDb.recordMenuLinkClick(menu.openId, link.getButtonName());
+
+        DeliverableMessage message = link.getMessage(webServerHostName);
+        List<MessageLinkTokenInfo> tokens = message.getLinkTokens();
+        message.deliver(p);
+
+        linkClickDb.recordMenuLinkClick(menu.openId, link.getButtonName(), tokens);
     }
 
     private Optional<String> pageNameFromToken(Player p, String token, MenuABGroup playerGroup) {
@@ -273,7 +289,7 @@ public class MenuInventories {
                     + " had a menu forcibly closed during reload, so it is being reopened for them.");
             MenuInventory menu = openNoToken(p, page);
             if (menu != null)
-                menuOpenDb.fromReload(player, page, menu);
+                menuOpenDb.fromReload(player, page, menu, Utilities.playerIp(p));
         }
     }
 

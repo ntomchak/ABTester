@@ -11,6 +11,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import manners.cowardly.abpromoter.ABPromoter;
+import manners.cowardly.abpromoter.menus.buttonlinks.ButtonLink;
+import manners.cowardly.abpromoter.menus.buttonlinks.ChatButtonLink;
+import manners.cowardly.abpromoter.menus.buttonlinks.PageButtonLink;
 import manners.cowardly.abpromoter.utilities.Utilities;
 
 public class MenuPage {
@@ -33,31 +36,6 @@ public class MenuPage {
 
     public ItemStack[] contents() {
         return pageContents;
-    }
-
-    public class ButtonLink {
-        private String buttonName;
-        // true if chat link, false if page links
-        private boolean chatLink;
-        private List<String> contents;
-
-        public ButtonLink(String buttonName, boolean chatLink, List<String> contents) {
-            this.buttonName = buttonName;
-            this.chatLink = chatLink;
-            this.contents = contents;
-        }
-
-        public String getButtonName() {
-            return buttonName;
-        }
-
-        public boolean isChatLink() {
-            return chatLink;
-        }
-
-        public List<String> getContents() {
-            return contents;
-        }
     }
 
     private class LoadConfiguration {
@@ -83,10 +61,10 @@ public class MenuPage {
             String type = linkSection.getString("type");
             switch (type) {
             case "chat":
-                loadLink(linkSection, true, index, buttonName);
+                loadChatLink(linkSection, index, buttonName);
                 break;
             case "page":
-                loadLink(linkSection, false, index, buttonName);
+                loadPageLink(linkSection, index, buttonName);
                 break;
             default:
                 ABPromoter.getInstance().getLogger().warning("Invalid link type for button \"" + buttonName + "\": \""
@@ -94,11 +72,17 @@ public class MenuPage {
                 break;
             }
         }
-
-        private void loadLink(ConfigurationSection linkSection, boolean isChatLink, int index, String buttonName) {
+        
+        private void loadPageLink(ConfigurationSection linkSection, int index, String buttonName) {
             List<String> content = linkSection.getStringList("content");
             if (!content.isEmpty())
-                indexToLink.put(index, new ButtonLink(buttonName, isChatLink, content));
+                indexToLink.put(index, new PageButtonLink(buttonName, content));
+        }
+
+        private void loadChatLink(ConfigurationSection linkSection, int index, String buttonName) {
+            List<String> content = linkSection.getStringList("content");
+            if (!content.isEmpty())
+                indexToLink.put(index, new ChatButtonLink(buttonName, content));
         }
 
         // returns index
@@ -114,6 +98,7 @@ public class MenuPage {
         private ItemStack makeStack(Material material, String name, List<String> lore, int amount) {
             ItemStack stack = new ItemStack(material, amount);
             ItemMeta meta = stack.getItemMeta();
+            Utilities.hideFlags(meta);
             meta.setDisplayName(name);
             if (!lore.isEmpty())
                 meta.setLore(lore);

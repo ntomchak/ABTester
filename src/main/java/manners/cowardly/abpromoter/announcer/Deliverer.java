@@ -15,6 +15,7 @@ import manners.cowardly.abpromoter.announcer.abgroup.components.MessageGroup;
 import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder;
 import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder.DeliverableMessage;
 import manners.cowardly.abpromoter.database.AnnouncerDeliveries;
+import manners.cowardly.abpromoter.utilities.Utilities;
 
 /**
  * 1 per announcer ab group
@@ -27,10 +28,12 @@ public class Deliverer {
     private Scheduler scheduler = new Scheduler();
     private AnnouncerDeliveries deliveriesDb;
     private AnnouncerTokenRecords tokenRecords;
+    private String webServerHostName;
 
-    public Deliverer(AnnouncerDeliveries deliveriesDb, AnnouncerTokenRecords tokenRecords) {
+    public Deliverer(AnnouncerDeliveries deliveriesDb, AnnouncerTokenRecords tokenRecords, String webServerHostName) {
         this.deliveriesDb = deliveriesDb;
         this.tokenRecords = tokenRecords;
+        this.webServerHostName = webServerHostName;
     }
 
     public String playerMessageGroupName(UUID player) {
@@ -67,17 +70,18 @@ public class Deliverer {
             } else {
                 MessageBuilder msgBuilder = group.sampleMessage();
                 if (msgBuilder != null) {
-                    DeliverableMessage msg = msgBuilder.getMessage();
+                    DeliverableMessage msg = msgBuilder.getMessage(webServerHostName);
 
                     msg.deliver(p);
 
                     // store tokens from message
-                    tokenRecords.storeTokens(p.getUniqueId(), msg.getTokens());
+                    tokenRecords.storeTokens(p.getUniqueId(), msg.getMenuTokens());
 
                     // record delivery in database
-                    Collection<String> tokens = msg.getTokens().stream().map(tokenInfo -> tokenInfo.getToken())
+                    Collection<String> tokens = msg.getMenuTokens().stream().map(tokenInfo -> tokenInfo.getToken())
                             .collect(Collectors.toList());
-                    deliveriesDb.recordDelivery(msg.getRawText(), group.getName(), p.getUniqueId(), tokens);
+                    deliveriesDb.recordDelivery(msg.getRawText(), group.getName(), p.getUniqueId(), tokens,
+                            Utilities.playerIp(p), msg.getLinkTokens());
 
                     // schedule next delivery
                 } else {

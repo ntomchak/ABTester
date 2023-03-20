@@ -18,6 +18,8 @@ public class AdminCommand implements CommandExecutor {
 
     public AdminCommand(Reloader reloader, PlayerABGroups playerGroups, Deliverer deliverer) {
         this.reloader = reloader;
+        this.playerGroups = playerGroups;
+        this.deliverer = deliverer;
     }
 
     @Override
@@ -33,8 +35,14 @@ public class AdminCommand implements CommandExecutor {
                 announcerAbGroup(sender);
             else if (args[0].equalsIgnoreCase("menuabgroup") || args[0].equalsIgnoreCase("meg"))
                 menuAbGroup(sender);
+            else if (args[0].equalsIgnoreCase("address"))
+                address(sender);
         }
         return true;
+    }
+
+    private void address(CommandSender sender) {
+        Bukkit.getOnlinePlayers().forEach(p -> sender.sendMessage(p.getName() + ": " + Utilities.playerIp(p)));
     }
 
     private void menuAbGroup(CommandSender sender) {
@@ -46,8 +54,8 @@ public class AdminCommand implements CommandExecutor {
     }
 
     private void showPlayerMenuABGroup(Player p, CommandSender sender) {
-        String groupName = playerGroups.getPlayerAnnouncerABGroup(p.getUniqueId()).getName();
-        sender.sendMessage("Announcer AB group for '" + p.getName() + "': " + groupName);
+        String groupName = playerGroups.getPlayerMenuABGroup(p.getUniqueId()).getName();
+        sender.sendMessage("Menu AB group for '" + p.getName() + "': " + groupName);
     }
 
     private void showPlayerAnnouncerABGroup(Player p, CommandSender sender) {
@@ -63,9 +71,9 @@ public class AdminCommand implements CommandExecutor {
     private void showPlayerPlaytime(Player p, CommandSender sender) {
         int ticksPlayed = p.getStatistic(Statistic.PLAY_ONE_MINUTE);
         int secondsPlayed = ticksPlayed / 20;
+        double hoursPlayed = (double) (ticksPlayed) / 72000.0;
         String playtimeString = Utilities.timeAgoString(secondsPlayed);
-        sender.sendMessage(
-                "Playtime for '" + p.getName() + "': " + playtimeString + " (" + secondsPlayed + " seconds).");
+        sender.sendMessage("Playtime for '" + p.getName() + "': " + playtimeString + " (" + hoursPlayed + " hours).");
     }
 
     private void reload(CommandSender sender) {
@@ -79,5 +87,6 @@ public class AdminCommand implements CommandExecutor {
         sender.sendMessage(
                 "'/abpromoter announcerabgroup/ang' : lists the announcer ab groups and message groups of all online players");
         sender.sendMessage("'/abpromoter menuabgroup/meg' : lists the menu ab groups of all online players");
+        sender.sendMessage("'/abpromoter address' : lists ip address of all online players");
     }
 }

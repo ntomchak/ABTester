@@ -17,7 +17,9 @@ import manners.cowardly.abpromoter.database.MenuLinkClick;
 import manners.cowardly.abpromoter.database.MenuOpen;
 import manners.cowardly.abpromoter.database.MenuPageClick;
 import manners.cowardly.abpromoter.database.SaveABGroup;
+import manners.cowardly.abpromoter.database.UserIpAddress;
 import manners.cowardly.abpromoter.database.connect.ConnectionPool;
+import manners.cowardly.abpromoter.database.redis.Redis;
 import manners.cowardly.abpromoter.database.translator.StringIdTranslator;
 import manners.cowardly.abpromoter.database.translator.TokenIdTranslator;
 import manners.cowardly.abpromoter.listeners.InventoryListeners;
@@ -33,6 +35,7 @@ public class ABPromoter extends JavaPlugin {
     private static Permission perms = null;
     private static JavaPlugin instance;
     private ConnectionPool pool;
+    private MenuInventories menuInventories;
 
     // TODO reload, disable
     public void onEnable() {
@@ -50,14 +53,20 @@ public class ABPromoter extends JavaPlugin {
 
         // translators
         TokenIdTranslator tokenTranslator = new TokenIdTranslator();
-        StringIdTranslator messageGroupTranslator = new StringIdTranslator(pool, "announcer_message_groups", "name");
-        StringIdTranslator buttonNameTranslator = new StringIdTranslator(pool, "menu_button_names", "name");
-        StringIdTranslator menuPageTranslator = new StringIdTranslator(pool, "menu_page_names", "name");
-        StringIdTranslator referralIdTranslator = new StringIdTranslator(pool, "menu_referral", "name");
-        StringIdTranslator messagesIdTranslator = new StringIdTranslator(pool, "announcer_messages", "raw_text");
+        StringIdTranslator messageGroupTranslator = new StringIdTranslator("announcer_message_groups", "name");
+        StringIdTranslator buttonNameTranslator = new StringIdTranslator("menu_button_names", "name");
+        StringIdTranslator menuPageTranslator = new StringIdTranslator("menu_page_names", "name");
+        StringIdTranslator referralIdTranslator = new StringIdTranslator("menu_referral", "name");
+        StringIdTranslator messagesIdTranslator = new StringIdTranslator("announcer_messages", "raw_text");
+        StringIdTranslator ipIdTranslator = new StringIdTranslator("ip_addresses", "ip_address");
 
         // announcer tokens
         AnnouncerTokenRecords tokenRecords = new AnnouncerTokenRecords();
+
+        // Redis
+        String webHostName = getConfig().getString("externalLinks.other.webServerHostName");
+        String serverName = getConfig().getString("externalLinks.other.serverName");
+        Redis redis = new Redis(serverName, getConfig().getConfigurationSection("externalLinks.redis"));
 
         // database
         SaveABGroup saveGroupDb = new SaveABGroup(pool);
@@ -65,27 +74,29 @@ public class ABPromoter extends JavaPlugin {
         InsertPlayerABGroups recordGroupsDb = new InsertPlayerABGroups(pool);
         AnnouncerClick announcerClickDb = new AnnouncerClick(tokenTranslator, pool);
         AnnouncerDeliveries deliveriesDb = new AnnouncerDeliveries(tokenTranslator, messageGroupTranslator,
-                messagesIdTranslator, pool);
+                messagesIdTranslator, pool, ipIdTranslator, redis);
         MenuClose menuCloseDb = new MenuClose(pool);
-        MenuLinkClick linkClickDb = new MenuLinkClick(pool, buttonNameTranslator);
-        MenuOpen menuOpenDb = new MenuOpen(pool, menuPageTranslator, referralIdTranslator, tokenTranslator);
+        MenuLinkClick linkClickDb = new MenuLinkClick(pool, buttonNameTranslator, redis);
+        MenuOpen menuOpenDb = new MenuOpen(pool, menuPageTranslator, referralIdTranslator, tokenTranslator,
+                ipIdTranslator);
         MenuPageClick pageClickDb = new MenuPageClick(pool, menuPageTranslator, buttonNameTranslator);
         GetABGroupsWithMembers abGroupsWithMembers = new GetABGroupsWithMembers(pool);
+        UserIpAddress userIps = new UserIpAddress(pool, ipIdTranslator);
 
         // ab groups
         AnnouncerABGroups announcerGroups = new AnnouncerABGroups(abGroupsWithMembers, saveGroupDb);
         MenuABGroups menuGroups = new MenuABGroups(abGroupsWithMembers, saveGroupDb);
 
         // deliverer
-        Deliverer deliverer = new Deliverer(deliveriesDb, tokenRecords);
+        Deliverer deliverer = new Deliverer(deliveriesDb, tokenRecords, webHostName);
 
         // player ab groups
         PlayerABGroups playerGroups = new PlayerABGroups(getGroupsDb, recordGroupsDb, announcerGroups, menuGroups,
                 deliverer);
 
         // Menu inventories
-        MenuInventories menuInventories = new MenuInventories(playerGroups, menuOpenDb, tokenRecords, linkClickDb,
-                pageClickDb, menuCloseDb);
+        menuInventories = new MenuInventories(playerGroups, menuOpenDb, tokenRecords, linkClickDb,
+                pageClickDb, menuCloseDb, webHostName);
 
         // Reloader
         Reloader reloader = new Reloader(menuInventories, announcerGroups, menuGroups, abGroupsWithMembers, saveGroupDb,
@@ -99,12 +110,11 @@ public class ABPromoter extends JavaPlugin {
 
         // Listeners
         Bukkit.getPluginManager().registerEvents(new InventoryListeners(menuInventories), instance);
-        Bukkit.getPluginManager().registerEvents(new JoinQuitListeners(playerGroups), instance);
+        Bukkit.getPluginManager().registerEvents(new JoinQuitListeners(playerGroups, userIps), instance);
     }
 
     public void onDisable() {
-        // inventory closes
-        //
+        menuInventories.closeAll();
         pool.close();
     }
 

@@ -48,7 +48,7 @@ messages:
     - "<text [color=red][formatting=bold][hover_text=§c§lHdefault]> default"
     - "<new_line>"
     - "<text>Text"
-    - "<menu_link [color=#8B0000][formatting=underline][hover_text=Click here]>Hello"
+    - "<menu_link [color=#8B0000][formatting=underline][hover_text=Click here to open §6§l/buy]>Hello"
     - "def"
     - "<legacy_text>§c§lHe`llo"
 # if a player does not fit in any message groups, they get this

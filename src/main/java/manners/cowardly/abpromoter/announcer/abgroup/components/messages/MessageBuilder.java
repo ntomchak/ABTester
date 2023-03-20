@@ -2,10 +2,12 @@ package manners.cowardly.abpromoter.announcer.abgroup.components.messages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.bukkit.entity.Player;
 
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.pieces.ExternalLinkPiece;
 import manners.cowardly.abpromoter.announcer.abgroup.components.messages.pieces.MenuLinkPiece;
 import manners.cowardly.abpromoter.announcer.abgroup.components.messages.pieces.MessagePiece;
 import manners.cowardly.abpromoter.utilities.RandomStringGenerator;
@@ -14,16 +16,35 @@ import net.md_5.bungee.api.chat.ClickEvent;
 
 public class MessageBuilder {
     private BaseComponent[] components;
-    private List<MenuPageAndComponentIndex> clickableIndices = new ArrayList<MenuPageAndComponentIndex>();
+    private List<MenuPageAndComponentIndex> clickableMenuIndices = new ArrayList<MenuPageAndComponentIndex>();
+    private List<UrlAndComponentIndex> clickableLinkIndices = new ArrayList<UrlAndComponentIndex>();
     private String menuCommand = "/abpmto";
     private String rawMessage;
+    private boolean allowMenuLinks;
+    private int externalLinkTokenLength;
 
-    public MessageBuilder(List<String> rawText) {
+    /**
+     * @param rawText
+     * @param allowMenuLinks
+     * @param type           "open" or "delivery"
+     */
+
+    public MessageBuilder(List<String> rawText, boolean allowMenuLinks, String type) {
+        this.allowMenuLinks = allowMenuLinks;
+        saveType(type);
         new BuildBuilder(rawText);
     }
 
-    public DeliverableMessage getMessage() {
-        return new DeliverableMessage();
+    private void saveType(String type) {
+        if (type == "open") {
+            externalLinkTokenLength = 8;
+        } else if (type == "delivery") {
+            externalLinkTokenLength = 11;
+        }
+    }
+
+    public DeliverableMessage getMessage(String webServerHostName) {
+        return new DeliverableMessage(webServerHostName);
     }
 
     public String toString() {
@@ -45,14 +66,21 @@ public class MessageBuilder {
         private void addPiece(String rawPiece, List<BaseComponent> components) {
             MessagePiece piece = MessagePiece.fromRawText(rawPiece);
             piece.appendComponents(components);
-            if (piece instanceof MenuLinkPiece)
-                saveClickablePiece(components.size() - 1, (MenuLinkPiece) piece);
+            if (allowMenuLinks && piece instanceof MenuLinkPiece)
+                saveClickableMenuPiece(components.size() - 1, (MenuLinkPiece) piece);
+            else if (piece instanceof ExternalLinkPiece)
+                saveClickableLinkPiece(components.size() - 1, (ExternalLinkPiece) piece);
         }
 
-        private void saveClickablePiece(int index, MenuLinkPiece piece) {
+        private void saveClickableLinkPiece(int index, ExternalLinkPiece piece) {
+            UrlAndComponentIndex clickableInfo = new UrlAndComponentIndex(piece.getUrl(), index);
+            clickableLinkIndices.add(clickableInfo);
+        }
+
+        private void saveClickableMenuPiece(int index, MenuLinkPiece piece) {
             MenuPageAndComponentIndex clickableInfo = new MenuPageAndComponentIndex(((MenuLinkPiece) piece).getPages(),
                     index);
-            clickableIndices.add(clickableInfo);
+            clickableMenuIndices.add(clickableInfo);
         }
 
         private void combineRawText(List<String> rawText) {
@@ -64,18 +92,40 @@ public class MessageBuilder {
 
     public class DeliverableMessage {
         private BaseComponent[] components;
-        private List<MessageTokenInfo> tokens;
+        private List<MessageMenuTokenInfo> menuTokens;
+        private List<MessageLinkTokenInfo> linkTokens;
 
-        public DeliverableMessage() {
+        public DeliverableMessage(String webServerHostName) {
             components = Arrays.copyOf(MessageBuilder.this.components, MessageBuilder.this.components.length);
-            tokens = new ArrayList<MessageTokenInfo>();
-            setClickableComponents();
+            menuTokens = new ArrayList<MessageMenuTokenInfo>();
+            linkTokens = new ArrayList<MessageLinkTokenInfo>();
+            if (allowMenuLinks)
+                setClickableMenuComponents();
+            setClickableLinkComponents(webServerHostName);
         }
 
-        private void setClickableComponents() {
-            for (MenuPageAndComponentIndex clickableInfo : clickableIndices) {
-                MessageTokenInfo token = new MessageTokenInfo(clickableInfo.menuPages);
-                tokens.add(token);
+        private void setClickableLinkComponents(String webServerHostName) {
+            for (UrlAndComponentIndex clickableInfo : clickableLinkIndices) {
+                MessageLinkTokenInfo token = new MessageLinkTokenInfo(clickableInfo.url);
+                linkTokens.add(token);
+
+                String clickableUrl = clickableUrl(webServerHostName, token.getToken(), clickableInfo);
+                BaseComponent copy = components[clickableInfo.componentIndex].duplicate();
+                copy.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, clickableUrl));
+                components[clickableInfo.componentIndex] = copy;
+            }
+        }
+
+        private String clickableUrl(String webServerHostName, String token, UrlAndComponentIndex clickableInfo) {
+            StringBuilder buildClickableUrl = new StringBuilder(40).append("http://").append(webServerHostName)
+                    .append("/").append(token);
+            return buildClickableUrl.toString();
+        }
+
+        private void setClickableMenuComponents() {
+            for (MenuPageAndComponentIndex clickableInfo : clickableMenuIndices) {
+                MessageMenuTokenInfo token = new MessageMenuTokenInfo(clickableInfo.menuPages);
+                menuTokens.add(token);
 
                 String command = menuCommand + " " + token.getToken();
                 BaseComponent copy = components[clickableInfo.componentIndex].duplicate();
@@ -85,22 +135,47 @@ public class MessageBuilder {
         }
 
         public void deliver(Player p) {
-            p.spigot().sendMessage(components);
+            if (components.length == 0 || (components.length == 1 && components[0].toPlainText().equals("")))
+                ;
+            else
+                p.spigot().sendMessage(components);
         }
 
         public String getRawText() {
             return MessageBuilder.this.rawMessage;
         }
 
-        public List<MessageTokenInfo> getTokens() {
-            return tokens;
+        public List<MessageMenuTokenInfo> getMenuTokens() {
+            return Collections.unmodifiableList(menuTokens);
         }
 
-        public class MessageTokenInfo {
+        public List<MessageLinkTokenInfo> getLinkTokens() {
+            return Collections.unmodifiableList(linkTokens);
+        }
+
+        public class MessageLinkTokenInfo {
+            private String token;
+            private String url;
+
+            public MessageLinkTokenInfo(String url) {
+                token = RandomStringGenerator.getString(externalLinkTokenLength);
+                this.url = url;
+            }
+
+            public String getToken() {
+                return token;
+            }
+
+            public String getUrl() {
+                return url;
+            }
+        }
+
+        public class MessageMenuTokenInfo {
             private String token;
             private String[] menuPages;
 
-            public MessageTokenInfo(String[] menuPages) {
+            public MessageMenuTokenInfo(String[] menuPages) {
                 this.menuPages = menuPages;
                 token = RandomStringGenerator.getString(10);
             }
@@ -113,6 +188,16 @@ public class MessageBuilder {
                 return menuPages;
             }
         }
+    }
+
+    private class UrlAndComponentIndex {
+        public UrlAndComponentIndex(String url, int componentIndex) {
+            this.url = url;
+            this.componentIndex = componentIndex;
+        }
+
+        private String url;
+        private int componentIndex;
     }
 
     private class MenuPageAndComponentIndex {

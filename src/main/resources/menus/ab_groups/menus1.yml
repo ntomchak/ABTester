@@ -47,4 +47,5 @@ pages:
                 # if "chat", the message lines which will appear in chat
                 content:
                 - "Click here to visit our store: https://asdf.buycraft.net"
+                - "<external_link [color=gold][formatting=underline,bold][url=http://toomanycows.buycraft.net]> click!"
             

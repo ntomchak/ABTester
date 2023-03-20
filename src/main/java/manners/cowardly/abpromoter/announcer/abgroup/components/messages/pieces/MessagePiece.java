@@ -10,7 +10,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 public abstract class MessagePiece {
 
-    private static Pattern wholeStringPattern = Pattern.compile("<(.*?)(?: (\\[.*?=.*?\\]))??>\\s?(.*?)");
+    private static Pattern wholeStringPattern = Pattern.compile("<(.*?)(?: (\\[.*?=.*?\\]))??>(.*?)");
     private static Pattern attributesPattern = Pattern.compile("\\[(.*?)=(.*?)\\]");
 
     public abstract void appendComponents(List<BaseComponent> list);
@@ -39,6 +39,8 @@ public abstract class MessagePiece {
             return new TextPiece(attributes(attributesStr), text);
         case "menu_link":
             return new MenuLinkPiece(attributes(attributesStr), text);
+        case "external_link":
+            return new ExternalLinkPiece(attributes(attributesStr), text);
         case "new_line":
             return new NewLinePiece();
         case "legacy_text":

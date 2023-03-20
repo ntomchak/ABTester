@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.UUID;
 
-import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder.DeliverableMessage.MessageTokenInfo;
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder.DeliverableMessage.MessageMenuTokenInfo;
 
 /**
  * Stores announcer clickable tokens of user with menu page and msg id.
@@ -18,7 +18,7 @@ public class AnnouncerTokenRecords {
 
     private Map<UUID, UserTokens> users = new HashMap<UUID, UserTokens>();
 
-    public void storeToken(UUID user, MessageTokenInfo token) {
+    public void storeToken(UUID user, MessageMenuTokenInfo token) {
         UserTokens tokens = users.get(user);
         if (tokens == null) {
             tokens = new UserTokens();
@@ -27,7 +27,7 @@ public class AnnouncerTokenRecords {
         tokens.insertRecord(token);
     }
 
-    public void storeTokens(UUID user, Collection<MessageTokenInfo> tokens) {
+    public void storeTokens(UUID user, Collection<MessageMenuTokenInfo> tokens) {
         UserTokens tokensData = users.get(user);
         if (tokensData == null) {
             tokensData = new UserTokens();
@@ -61,15 +61,15 @@ public class AnnouncerTokenRecords {
         private Queue<UserTokenRecord> records = new ArrayDeque<UserTokenRecord>();
         private Map<String, String[]> tokenToPageNames = new HashMap<String, String[]>();
 
-        public void insertRecord(MessageTokenInfo token) {
+        public void insertRecord(MessageMenuTokenInfo token) {
             clearOld();
             records.offer(new UserTokenRecord(token.getToken()));
             tokenToPageNames.put(token.getToken(), token.getMenuPages());
         }
 
-        public void insertRecords(Collection<MessageTokenInfo> tokens) {
+        public void insertRecords(Collection<MessageMenuTokenInfo> tokens) {
             clearOld();
-            for (MessageTokenInfo token : tokens) {
+            for (MessageMenuTokenInfo token : tokens) {
                 records.offer(new UserTokenRecord(token.getToken()));
                 tokenToPageNames.put(token.getToken(), token.getMenuPages());
             }

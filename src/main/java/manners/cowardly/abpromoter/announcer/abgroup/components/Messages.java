@@ -26,6 +26,6 @@ public class Messages {
     private void loadMessage(String name, List<String> pieces) {
         if (pieces.isEmpty())
             pieces.add("");
-        messages.put(name, new MessageBuilder(pieces));
+        messages.put(name, new MessageBuilder(pieces, true, "delivery"));
     }
 }

@@ -46,8 +46,10 @@ public class ABGroupsLoadInfo<T extends ABGroup> {
             groupNames.put(entry.getKey(), group);
 
             Integer weight = weights.get(entry.getKey());
-            if (weight != null)
+            
+            if (weight != null) {
                 groupsProbabilities.add(group, weight.doubleValue());
+            }
         }
     }
 }

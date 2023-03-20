@@ -34,7 +34,7 @@ public class ConnectionPool {
     public ConnectionPool(ConfigurationSection databaseSection) {
         this(databaseSection.getString("host"), databaseSection.getString("port"), databaseSection.getString("database"),
                 databaseSection.getString("user"), databaseSection.getString("pass"),
-                databaseSection.getInt("poolSize", 6));
+                databaseSection.getInt("poolSize", 4));
     }
 
     public void reload(String host, String port, String db, String user, String pass, int poolSize) {

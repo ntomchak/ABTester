@@ -11,7 +11,9 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 
 import manners.cowardly.abpromoter.ABPromoter;
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder.DeliverableMessage.MessageLinkTokenInfo;
 import manners.cowardly.abpromoter.database.connect.ConnectionPool;
+import manners.cowardly.abpromoter.database.redis.Redis;
 import manners.cowardly.abpromoter.database.translator.StringIdTranslator;
 import manners.cowardly.abpromoter.database.translator.TokenIdTranslator;
 
@@ -21,13 +23,18 @@ public class AnnouncerDeliveries {
     private ConnectionPool pool;
     private StringIdTranslator messageGroupTranslator;
     private StringIdTranslator messagesIdTranslator;
+    private StringIdTranslator ipTranslator;
+    private Redis redis;
 
     public AnnouncerDeliveries(TokenIdTranslator tokenTranslator, StringIdTranslator messageGroupTranslator,
-            StringIdTranslator messagesIdTranslator, ConnectionPool pool) {
+            StringIdTranslator messagesIdTranslator, ConnectionPool pool, StringIdTranslator ipTranslator,
+            Redis redis) {
         this.tokenTranslator = tokenTranslator;
         this.messagesIdTranslator = messagesIdTranslator;
         this.messageGroupTranslator = messageGroupTranslator;
         this.pool = pool;
+        this.ipTranslator = ipTranslator;
+        this.redis = redis;
     }
 
     /**
@@ -38,10 +45,12 @@ public class AnnouncerDeliveries {
      * @param user
      * @param tokens
      */
-    public void recordDelivery(String rawMessage, String messageGroup, UUID user, Collection<String> tokens) {
+    public void recordDelivery(String rawMessage, String messageGroup, UUID user, Collection<String> tokens,
+            String ip, Collection<MessageLinkTokenInfo> linkTokens) {
         Runnable insertDeliveryAndRecordTokens = () -> {
-            int deliveryId = insertDelivery(rawMessage, messageGroup, user);
+            int deliveryId = insertDelivery(rawMessage, messageGroup, user, ip);
             recordTokens(user, tokens, deliveryId);
+            redis.recordDeliveryLinks(deliveryId, linkTokens);
         };
         Bukkit.getScheduler().runTaskAsynchronously(ABPromoter.getInstance(), insertDeliveryAndRecordTokens);
     }
@@ -53,16 +62,18 @@ public class AnnouncerDeliveries {
     }
 
     // call from async only, returns id of delivery
-    private int insertDelivery(String rawMessage, String messageGroup, UUID user) {
+    private int insertDelivery(String rawMessage, String messageGroup, UUID user, String ip) {
         try (Connection c = pool.getConnection()) {
-            int msgGroupId = messageGroupTranslator.idOfString(messageGroup);
-            int msgId = messagesIdTranslator.idOfString(rawMessage);
+            int msgGroupId = messageGroupTranslator.idOfString(c, messageGroup);
+            int msgId = messagesIdTranslator.idOfString(c, rawMessage);
+            int ipId = ipTranslator.idOfString(c, ip);
             PreparedStatement s = c.prepareStatement(
-                    "INSERT INTO announcer_deliveries SET message=?, user=(SELECT id FROM users WHERE mc_uuid=?), message_group=?",
+                    "INSERT INTO announcer_deliveries SET message=?, user=(SELECT id FROM users WHERE mc_uuid=?), message_group=?, ip_address=?",
                     Statement.RETURN_GENERATED_KEYS);
             s.setInt(1, msgId);
             s.setString(2, user.toString());
             s.setInt(3, msgGroupId);
+            s.setInt(4, ipId);
             s.executeUpdate();
             ResultSet r = s.getGeneratedKeys();
             r.next();

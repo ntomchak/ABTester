@@ -9,34 +9,31 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import manners.cowardly.abpromoter.ABPromoter;
-import manners.cowardly.abpromoter.database.connect.ConnectionPool;
 
 public class StringIdTranslator {
     private ConcurrentMap<String, Integer> menuPageNameToId = new ConcurrentHashMap<String, Integer>();
-    private ConnectionPool pool;
     private String tableName;
     private String columnName;
 
-    public StringIdTranslator(ConnectionPool pool, String tableName, String columnName) {
-        this.pool = pool;
+    public StringIdTranslator(String tableName, String columnName) {
         this.tableName = tableName;
         this.columnName = columnName;
     }
 
     // from async only
-    public int idOfString(String string) {
+    public int idOfString(Connection c, String string) {
         Integer id = menuPageNameToId.get(string);
         if (id == null) {
-            return fromDb(string);
+            return fromDb(c, string);
         } else {
-            int db = fromDb(string);
+            int db = fromDb(c, string);
             menuPageNameToId.put(string, Integer.valueOf(db));
             return db;
         }
     }
 
-    private int fromDb(String pageName) {
-        try (Connection c = pool.getConnection()) {
+    private int fromDb(Connection c, String pageName) {
+        try {
             PreparedStatement s = c.prepareStatement("SELECT id FROM " + tableName + " WHERE " + columnName + "=?");
             s.setString(1, pageName);
             ResultSet r = s.executeQuery();

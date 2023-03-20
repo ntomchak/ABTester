@@ -1,6 +1,7 @@
 package manners.cowardly.abpromoter.announcer.abgroup.components;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,7 +13,6 @@ import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.announcer.abgroup.components.MessageLists.MessageList;
 import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder;
 import manners.cowardly.abpromoter.utilities.WeightedProbabilities;
-import manners.cowardly.abpromoter.utilities.WeightedProbabilities.Probability;
 
 /**
  * New players, vip players, etc. multiple per announcer ab group
@@ -58,8 +58,10 @@ public class MessageGroup {
         }
 
         private void loadTimer(ConfigurationSection timerSection) {
-            secondsAfterLogin = timerSection.getInt("afterLogin");
-            every = timerSection.getInt("every");
+            secondsAfterLogin = timerSection.getInt("afterLogin", 10);
+            if(secondsAfterLogin < 5)
+                secondsAfterLogin = 5;
+            every = timerSection.getInt("every", 300);
         }
 
         private void loadPlayerEligibilityCheck(ConfigurationSection groupSection) {
@@ -81,14 +83,14 @@ public class MessageGroup {
 
         private void loadMessageLists(ConfigurationSection messageListsSection, MessageLists lists,
                 String messageGroupName) {
-            List<Probability<MessageList>> probabilities = new ArrayList<Probability<MessageList>>();
-            messageListsSection.getKeys(false).forEach(
-                    key -> loadMessageListWeight(messageListsSection, key, lists, messageGroupName, probabilities));
-            messageLists = new WeightedProbabilities<MessageList>(probabilities);
+            messageLists = new WeightedProbabilities<MessageList>();
+            Collection<String> messageListNames = messageListsSection.getKeys(false);
+            messageListNames.forEach(
+                    key -> loadMessageListWeight(messageListsSection, key, lists, messageGroupName, messageLists));
         }
 
         private void loadMessageListWeight(ConfigurationSection messageListsSection, String msgListName,
-                MessageLists lists, String messageGroupName, List<Probability<MessageList>> probabilities) {
+                MessageLists lists, String messageGroupName, WeightedProbabilities<MessageList> listProbabilities) {
             int weight = messageListsSection.getInt(msgListName);
             Optional<MessageList> list = lists.getMessageList(msgListName);
             if (list.isEmpty()) {
@@ -98,8 +100,7 @@ public class MessageGroup {
                 ABPromoter.getInstance().getLogger().warning("Invalid messageList weight for '" + msgListName
                         + "' in messageGroup '" + messageGroupName + "'. Ignoring as if it doesn't exist.");
             } else {
-                Probability<MessageList> probability = new Probability<MessageList>(weight, list.get());
-                probabilities.add(probability);
+                listProbabilities.add(list.get(), weight);
             }
         }
     }

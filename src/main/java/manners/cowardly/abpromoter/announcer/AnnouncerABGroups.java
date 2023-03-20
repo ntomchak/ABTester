@@ -26,9 +26,11 @@ public class AnnouncerABGroups {
     }
 
     private void load(GetABGroupsWithMembers getDbABGroups, SaveABGroup saveGroupDb) {
+
         ABGroupsLoadInfo<AnnouncerABGroup> load = new ABGroupsLoadInfo<AnnouncerABGroup>(AnnouncerABGroup::new,
                 getDbABGroups, saveGroupDb, "announcer", "announcer_ab_groups", "announcer_ab_group", "announcer1",
                 "announcer2");
+
         groupsProbabilities = load.groupsProbabilities();
         groupNames = load.groupNames();
     }

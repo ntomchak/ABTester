@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class WeightedProbabilities<T> {
     private TreeMap<Double, T> probabilities = new TreeMap<Double, T>();
-    private double max = 0;
+    private double cumulative = 0;
 
     /**
      * Negative and 0 probabilities disregarded, O(nlogn)
@@ -22,7 +22,7 @@ public class WeightedProbabilities<T> {
                 cumulative += p;
             this.probabilities.put(cumulative, prob.getValue());
         }
-        max = cumulative;
+        this.cumulative = cumulative;
     }
 
     public WeightedProbabilities() {
@@ -48,7 +48,7 @@ public class WeightedProbabilities<T> {
     public T sample() {
         if (probabilities.isEmpty())
             return null;
-        double roll = ThreadLocalRandom.current().nextDouble(0, max);
+        double roll = ThreadLocalRandom.current().nextDouble(0, cumulative);
         return probabilities.ceilingEntry(roll).getValue();
     }
 
@@ -62,8 +62,8 @@ public class WeightedProbabilities<T> {
     public boolean add(T t, double prob) {
         if (prob <= 0)
             return false;
-        max += prob;
-        probabilities.put(max, t);
+        cumulative += prob;
+        probabilities.put(cumulative, t);
         return true;
     }
 

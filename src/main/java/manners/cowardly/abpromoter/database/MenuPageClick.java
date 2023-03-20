@@ -31,9 +31,9 @@ public class MenuPageClick {
     // from async
     private void recordPageClickAsync(int openId, String buttonName, String fromPage, String toPage) {
         try (Connection c = pool.getConnection()) {
-            int fromPageId = menuPageTranslator.idOfString(fromPage);
-            int toPageId = menuPageTranslator.idOfString(toPage);
-            int buttonId = buttonNameTranslator.idOfString(buttonName);
+            int fromPageId = menuPageTranslator.idOfString(c, fromPage);
+            int toPageId = menuPageTranslator.idOfString(c, toPage);
+            int buttonId = buttonNameTranslator.idOfString(c, buttonName);
             PreparedStatement s = c.prepareStatement(
                     "INSERT INTO menu_page_click (open, menu_button, from_menu_page, to_menu_page) VALUES (?, ?, ?, ?)");
             s.setInt(1, openId);

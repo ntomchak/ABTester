@@ -26,6 +26,22 @@
 							</relocations>
 						</configuration>
 					</execution>
+					<execution>
+						<id>redis</id>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<relocations>
+								<relocation>
+									<pattern>redis.clients.jedis</pattern>
+									<shadedPattern>redis.clients.jedis
+									</shadedPattern>
+								</relocation>
+							</relocations>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 			<plugin>
@@ -49,6 +65,13 @@
 		</repository>
 	</repositories>
 	<dependencies>
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>4.4.0-m2</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
 		<dependency>
 			<groupId>com.zaxxer</groupId>
