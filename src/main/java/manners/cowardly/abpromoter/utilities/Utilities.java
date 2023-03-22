@@ -2,6 +2,7 @@ package manners.cowardly.abpromoter.utilities;
 
 import java.util.Optional;
 
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -12,6 +13,13 @@ public class Utilities {
     public static int inventoryIndex(int row, int col) {
         return (row - 1) * 9 + (col - 1);
     }
+    
+    public static ItemMeta makeShiny(ItemMeta meta) {
+        meta.addEnchant(Enchantment.PROTECTION_PROJECTILE, 1, true);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        return meta;
+    }
+
     
     public static String playerIp(Player p) {
         return p.getAddress().getAddress().getHostAddress();
