@@ -72,7 +72,7 @@ public class MenuPage {
                 break;
             }
         }
-        
+
         private void loadPageLink(ConfigurationSection linkSection, int index, String buttonName) {
             List<String> content = linkSection.getStringList("content");
             if (!content.isEmpty())
@@ -91,17 +91,20 @@ public class MenuPage {
             String name = loadName(buttonSection);
             List<String> lore = buttonSection.getStringList("lore");
             int amount = buttonSection.getInt("stackAmount", 1);
-            pageContents[index] = makeStack(material, name, lore, amount);
+            boolean enchanted = buttonSection.getBoolean("enchanted");
+            pageContents[index] = makeStack(material, name, lore, amount, enchanted);
             return index;
         }
 
-        private ItemStack makeStack(Material material, String name, List<String> lore, int amount) {
+        private ItemStack makeStack(Material material, String name, List<String> lore, int amount, boolean enchanted) {
             ItemStack stack = new ItemStack(material, amount);
             ItemMeta meta = stack.getItemMeta();
             Utilities.hideFlags(meta);
             meta.setDisplayName(name);
             if (!lore.isEmpty())
                 meta.setLore(lore);
+            if (enchanted)
+                Utilities.makeShiny(meta);
             stack.setItemMeta(meta);
             return stack;
         }
