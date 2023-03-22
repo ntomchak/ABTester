@@ -157,12 +157,15 @@ public class MenuABGroup implements ABGroup {
                         .warning("Invalid stack amount for filler item (" + amount + "), disregarding filler item");
                 return Optional.empty();
             }
+            
+            String name = itemSection.getString("name");
 
             List<String> lore = itemSection.getStringList("lore");
 
             ItemStack stack = new ItemStack(material.get(), amount);
             ItemMeta meta = stack.getItemMeta();
             meta.setLore(lore);
+            meta.setDisplayName(name);
             stack.setItemMeta(meta);
             return Optional.of(stack);
         }
