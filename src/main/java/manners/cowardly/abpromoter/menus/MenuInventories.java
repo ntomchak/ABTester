@@ -179,8 +179,8 @@ public class MenuInventories {
                     buttonLink(p, playerGroup, buttonLink.get(), menu);
                 }
                 return true;
-            }
-            return false;
+            } else
+                return false;
         } catch (Exception e) {
             e.printStackTrace();
             ABPromoter.getInstance().getLogger()
