@@ -29,7 +29,8 @@ public class WeightedProbabilities<T> {
     }
 
     public void setContents(WeightedProbabilities<T> toCopy) {
-        probabilities = toCopy.probabilities;
+        this.probabilities = toCopy.probabilities;
+        this.cumulative = toCopy.cumulative;
     }
 
     public Collection<T> values() {
