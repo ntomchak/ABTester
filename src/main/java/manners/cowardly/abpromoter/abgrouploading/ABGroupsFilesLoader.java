@@ -29,7 +29,7 @@ public class ABGroupsFilesLoader {
         groupsWithMembers = getDbABGroups.abGroupsWithMembers(abGroupsDbTableName, usersTableColumnName);
         checkWeightsForInvalidGroups(groupConfigs, groupWeights, directoryName);
         successful = checkForMissingGroups(groupsWithMembers, groupConfigs, directoryName);
-        saveNewAbGroups(saveGroupDb, groupsWithMembers, groupConfigs.keySet());
+        saveNewAbGroups(saveGroupDb, groupsWithMembers, groupConfigs.keySet(), abGroupsDbTableName);
     }
 
     public Map<String, ConfigurationSection> getGroupConfigs() {
@@ -48,13 +48,13 @@ public class ABGroupsFilesLoader {
         return successful;
     }
 
-    private void saveNewAbGroups(SaveABGroup saveGroupDb, Set<String> groupsWithMembers, Set<String> groupNames) {
-        groupNames.forEach(name -> insertGroupInDbIfNotPresent(saveGroupDb, groupsWithMembers, name));
+    private void saveNewAbGroups(SaveABGroup saveGroupDb, Set<String> groupsWithMembers, Set<String> groupNames, String abGroupsDbTableName) {
+        groupNames.forEach(name -> insertGroupInDbIfNotPresent(saveGroupDb, groupsWithMembers, name, abGroupsDbTableName));
     }
 
-    private void insertGroupInDbIfNotPresent(SaveABGroup saveGroupDb, Set<String> groupsWithMembers, String name) {
+    private void insertGroupInDbIfNotPresent(SaveABGroup saveGroupDb, Set<String> groupsWithMembers, String name, String abGroupsDbTableName) {
         if (!groupsWithMembers.contains(name)) {
-            saveGroupDb.saveGroup(name, "announcer_ab_groups");
+            saveGroupDb.saveGroup(name, abGroupsDbTableName);
         }
     }
 
