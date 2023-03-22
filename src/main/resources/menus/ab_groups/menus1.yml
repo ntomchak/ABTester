@@ -9,6 +9,7 @@ filler:
         material: 'BLACK_STAINED_GLASS_PANE'
         stackAmount: 1
         name: ''
+        enchanted: true
         lore:
         - 'Test'
         - 'Lore'
@@ -33,6 +34,7 @@ pages:
             material: 'gold_ingot'
             name: '§6Expert'
             stackAmount: 1
+            enchanted: true
             lore:
             - 'Expert rank'
             - 'fgfdgdg'
