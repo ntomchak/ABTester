@@ -79,7 +79,7 @@ public class ABGroupsReloadInfo<T extends ABGroup> {
     private void reloadWeights(ABGroupsFilesLoader filesLoader, Map<String, T> groupNames) {
         Map<String, Integer> weights = filesLoader.getWeights();
         WeightedProbabilities<T> probabilities = new WeightedProbabilities<T>();
-        weights.entrySet().forEach(entry -> groupsProbabilities.add(groupNames.get(entry.getKey()), entry.getValue()));
+        weights.entrySet().forEach(entry -> probabilities.add(groupNames.get(entry.getKey()), entry.getValue()));
         groupsProbabilities.setContents(probabilities);
     }
 }
