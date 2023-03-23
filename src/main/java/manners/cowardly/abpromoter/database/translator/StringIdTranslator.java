@@ -24,11 +24,11 @@ public class StringIdTranslator {
     public int idOfString(Connection c, String string) {
         Integer id = menuPageNameToId.get(string);
         if (id == null) {
-            return fromDb(c, string);
-        } else {
             int db = fromDb(c, string);
             menuPageNameToId.put(string, Integer.valueOf(db));
             return db;
+        } else {
+            return id;
         }
     }
 
