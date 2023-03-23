@@ -22,12 +22,12 @@ public class MenuPage {
     // have this menu, will try to open the second, and so on
     private Map<Integer, ButtonLink> indexToLink = new HashMap<Integer, ButtonLink>();
 
-    public MenuPage(ConfigurationSection pageSection, ItemStack[] filler) {
+    public MenuPage(ConfigurationSection pageSection, ItemStack[] filler, Map<String, List<String>> buttonContent) {
         pageContents = new ItemStack[filler.length];
         for (int i = 0; i < filler.length; i++)
             if (filler[i] != null)
                 pageContents[i] = new ItemStack(filler[i]);
-        new LoadConfiguration(pageSection);
+        new LoadConfiguration(pageSection, buttonContent);
     }
 
     public Optional<ButtonLink> linkAt(int index) {
@@ -39,11 +39,11 @@ public class MenuPage {
     }
 
     private class LoadConfiguration {
-        public LoadConfiguration(ConfigurationSection pageSection) {
-            pageSection.getKeys(false).forEach(key -> loadButton(pageSection.getConfigurationSection(key), key));
+        public LoadConfiguration(ConfigurationSection pageSection, Map<String, List<String>> buttonContent) {
+            pageSection.getKeys(false).forEach(key -> loadButton(pageSection.getConfigurationSection(key), key, buttonContent));
         }
 
-        private void loadButton(ConfigurationSection buttonSection, String buttonName) {
+        private void loadButton(ConfigurationSection buttonSection, String buttonName, Map<String, List<String>> buttonContent) {
             int index = loadIndex(buttonSection);
             if (index < 0) {
                 ABPromoter.getInstance().getLogger().warning("Not putting button in menu due to invalid index.");
@@ -54,17 +54,17 @@ public class MenuPage {
 
             ConfigurationSection linkSection = buttonSection.getConfigurationSection("link");
             if (linkSection != null)
-                loadLink(linkSection, index, buttonName);
+                loadLink(linkSection, index, buttonName, buttonContent);
         }
 
-        private void loadLink(ConfigurationSection linkSection, int index, String buttonName) {
+        private void loadLink(ConfigurationSection linkSection, int index, String buttonName, Map<String, List<String>> buttonContent) {
             String type = linkSection.getString("type");
             switch (type) {
             case "chat":
-                loadChatLink(linkSection, index, buttonName);
+                loadChatLink(linkSection, index, buttonName, buttonContent);
                 break;
             case "page":
-                loadPageLink(linkSection, index, buttonName);
+                loadPageLink(linkSection, index, buttonName, buttonContent);
                 break;
             default:
                 ABPromoter.getInstance().getLogger().warning("Invalid link type for button \"" + buttonName + "\": \""
@@ -73,16 +73,24 @@ public class MenuPage {
             }
         }
 
-        private void loadPageLink(ConfigurationSection linkSection, int index, String buttonName) {
-            List<String> content = linkSection.getStringList("content");
+        private void loadPageLink(ConfigurationSection linkSection, int index, String buttonName, Map<String, List<String>> buttonContent) {
+            List<String> content = content(linkSection, buttonContent);
             if (!content.isEmpty())
                 indexToLink.put(index, new PageButtonLink(buttonName, content));
         }
 
-        private void loadChatLink(ConfigurationSection linkSection, int index, String buttonName) {
-            List<String> content = linkSection.getStringList("content");
+        private void loadChatLink(ConfigurationSection linkSection, int index, String buttonName, Map<String, List<String>> buttonContent) {
+            List<String> content = content(linkSection, buttonContent);
             if (!content.isEmpty())
                 indexToLink.put(index, new ChatButtonLink(buttonName, content));
+        }
+        
+        private List<String> content(ConfigurationSection linkSection, Map<String, List<String>> buttonContent){
+            String contentName = linkSection.getString("content");
+            List<String> content = buttonContent.get(contentName);
+            if(content == null || content.isEmpty())
+                content = linkSection.getStringList("content");
+            return content;
         }
 
         // returns index

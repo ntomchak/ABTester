@@ -1,5 +1,6 @@
 package manners.cowardly.abpromoter.menus.menuabgroups;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,16 +97,30 @@ public class MenuABGroup implements ABGroup {
 
             menuTitle = section.getString("menuTitle", "Store");
 
-            loadPages(section.getConfigurationSection("pages"), filler);
+            Map<String, List<String>> buttonContents = loadButtonContents(
+                    section.getConfigurationSection("buttonContent"));
+
+            loadPages(section.getConfigurationSection("pages"), filler, buttonContents);
         }
 
-        private void loadPages(ConfigurationSection pagesSection, ItemStack[] filler) {
+        private Map<String, List<String>> loadButtonContents(ConfigurationSection buttonContentSection) {
+            Map<String, List<String>> contents = new HashMap<String, List<String>>();
+            if (buttonContentSection != null) {
+                Collection<String> keys = buttonContentSection.getKeys(false);
+                keys.forEach(key -> contents.put(key, buttonContentSection.getStringList(key)));
+            }
+            return contents;
+        }
+
+        private void loadPages(ConfigurationSection pagesSection, ItemStack[] filler,
+                Map<String, List<String>> buttonContent) {
             pagesSection.getKeys(false)
-                    .forEach(key -> loadPage(pagesSection.getConfigurationSection(key), key, filler));
+                    .forEach(key -> loadPage(pagesSection.getConfigurationSection(key), key, filler, buttonContent));
         }
 
-        private void loadPage(ConfigurationSection pageSection, String pageName, ItemStack[] filler) {
-            MenuPage page = new MenuPage(pageSection, filler);
+        private void loadPage(ConfigurationSection pageSection, String pageName, ItemStack[] filler,
+                Map<String, List<String>> buttonContent) {
+            MenuPage page = new MenuPage(pageSection, filler, buttonContent);
             pageNameToPage.put(pageName, page);
         }
 
@@ -157,8 +172,8 @@ public class MenuABGroup implements ABGroup {
                         .warning("Invalid stack amount for filler item (" + amount + "), disregarding filler item");
                 return Optional.empty();
             }
-            
-            String name = itemSection.getString("name");
+
+            String name = itemSection.getString("name", "");
 
             List<String> lore = itemSection.getStringList("lore");
 
