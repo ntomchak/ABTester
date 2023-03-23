@@ -28,9 +28,9 @@ public class Redis {
         int port = section.getInt("port", 6379);
 
         GenericObjectPoolConfig<Jedis> config = new GenericObjectPoolConfig<Jedis>();
-        config.setMaxTotal(5);
-        config.setMaxIdle(5);
-        config.setMinIdle(5);
+        config.setMaxTotal(12);
+        config.setMaxIdle(12);
+        config.setMinIdle(12);
         config.setTestOnBorrow(true);
 
         if (password == null || password.length() == 0) {
