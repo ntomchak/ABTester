@@ -24,6 +24,15 @@ filler:
         - '4'
         - '5'
         - '6'
+buttonContent:
+    # if page link, the page names (will try to open others if the first is invalid for the user's ab group)
+    # if chat link, the message lines which will appear in chat
+    exampleChatLink:
+    - "Click here to visit our store: https://asdf.buycraft.net"
+    - "<external_link [color=gold][formatting=underline,bold][url=http://toomanycows.buycraft.net]> click!"
+    examplePageLink:
+    - "ranks"
+    - "ranks2"
 pages:
     # keys are same as page name in database and the page name in clickable announcer messages
     # pageName:
@@ -45,9 +54,7 @@ pages:
             link:
                 # "chat" or "page"
                 type: chat
-                # if "page", the page names (will try to open others if the first is invalid for the user's ab group)
-                # if "chat", the message lines which will appear in chat
-                content:
-                - "Click here to visit our store: https://asdf.buycraft.net"
-                - "<external_link [color=gold][formatting=underline,bold][url=http://toomanycows.buycraft.net]> click!"
+
+                content: exampleChatLink
+
             
