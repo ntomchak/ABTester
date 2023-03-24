@@ -20,6 +20,7 @@ import manners.cowardly.abpromoter.database.SaveABGroup;
 import manners.cowardly.abpromoter.database.UserIpAddress;
 import manners.cowardly.abpromoter.database.connect.ConnectionPool;
 import manners.cowardly.abpromoter.database.redis.Redis;
+import manners.cowardly.abpromoter.database.translator.MessageIdTranslator;
 import manners.cowardly.abpromoter.database.translator.StringIdTranslator;
 import manners.cowardly.abpromoter.database.translator.TokenIdTranslator;
 import manners.cowardly.abpromoter.listeners.InventoryListeners;
@@ -53,12 +54,12 @@ public class ABPromoter extends JavaPlugin {
 
         // translators
         TokenIdTranslator tokenTranslator = new TokenIdTranslator();
-        StringIdTranslator messageGroupTranslator = new StringIdTranslator("announcer_message_groups", "name");
-        StringIdTranslator buttonNameTranslator = new StringIdTranslator("menu_button_names", "name");
-        StringIdTranslator menuPageTranslator = new StringIdTranslator("menu_page_names", "name");
-        StringIdTranslator referralIdTranslator = new StringIdTranslator("menu_referral", "name");
-        StringIdTranslator messagesIdTranslator = new StringIdTranslator("announcer_messages", "raw_text");
-        StringIdTranslator ipIdTranslator = new StringIdTranslator("ip_addresses", "ip_address");
+        StringIdTranslator messageGroupTranslator = new StringIdTranslator("announcer_message_groups", "name", false);
+        StringIdTranslator buttonNameTranslator = new StringIdTranslator("menu_button_names", "name", false);
+        StringIdTranslator menuPageTranslator = new StringIdTranslator("menu_page_names", "name", false);
+        StringIdTranslator referralIdTranslator = new StringIdTranslator("menu_referral", "name", false);
+        MessageIdTranslator messagesIdTranslator = new MessageIdTranslator();
+        StringIdTranslator ipIdTranslator = new StringIdTranslator("ip_addresses", "ip_address", true);
 
         // announcer tokens
         AnnouncerTokenRecords tokenRecords = new AnnouncerTokenRecords();

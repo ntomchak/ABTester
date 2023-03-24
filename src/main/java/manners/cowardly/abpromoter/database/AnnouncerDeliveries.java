@@ -14,6 +14,7 @@ import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder.DeliverableMessage.MessageLinkTokenInfo;
 import manners.cowardly.abpromoter.database.connect.ConnectionPool;
 import manners.cowardly.abpromoter.database.redis.Redis;
+import manners.cowardly.abpromoter.database.translator.MessageIdTranslator;
 import manners.cowardly.abpromoter.database.translator.StringIdTranslator;
 import manners.cowardly.abpromoter.database.translator.TokenIdTranslator;
 
@@ -22,12 +23,12 @@ public class AnnouncerDeliveries {
     private TokenIdTranslator tokenTranslator;
     private ConnectionPool pool;
     private StringIdTranslator messageGroupTranslator;
-    private StringIdTranslator messagesIdTranslator;
+    private MessageIdTranslator messagesIdTranslator;
     private StringIdTranslator ipTranslator;
     private Redis redis;
 
     public AnnouncerDeliveries(TokenIdTranslator tokenTranslator, StringIdTranslator messageGroupTranslator,
-            StringIdTranslator messagesIdTranslator, ConnectionPool pool, StringIdTranslator ipTranslator,
+            MessageIdTranslator messagesIdTranslator, ConnectionPool pool, StringIdTranslator ipTranslator,
             Redis redis) {
         this.tokenTranslator = tokenTranslator;
         this.messagesIdTranslator = messagesIdTranslator;
