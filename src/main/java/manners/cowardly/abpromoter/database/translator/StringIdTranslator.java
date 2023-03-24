@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.bukkit.Bukkit;
+
 import manners.cowardly.abpromoter.ABPromoter;
 
 public class StringIdTranslator {
@@ -15,9 +17,11 @@ public class StringIdTranslator {
     private String tableName;
     private String columnName;
 
-    public StringIdTranslator(String tableName, String columnName) {
+    public StringIdTranslator(String tableName, String columnName, boolean periodicallyClear) {
         this.tableName = tableName;
         this.columnName = columnName;
+        if(periodicallyClear)
+            Bukkit.getScheduler().runTaskTimerAsynchronously(ABPromoter.getInstance(), () -> menuPageNameToId.clear(), 200000, 200000);
     }
 
     // from async only
