@@ -29,7 +29,7 @@ buttonContent:
     # if chat link, the message lines which will appear in chat
     exampleChatLink:
     - "Click here to visit our store: https://asdf.buycraft.net"
-    - "<external_link [color=gold][formatting=underline,bold][url=http://toomanycows.buycraft.net]> click!"
+    - "<external_link [color=gold][formatting=underline,bold][url=https://asdf.buycraft.net]> click!"
     examplePageLink:
     - "ranks"
     - "ranks2"
