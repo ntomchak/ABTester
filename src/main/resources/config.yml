@@ -6,8 +6,8 @@ externalLinks:
         user: ""
         password: ""
     other:
-        serverName: "regl"
-        webServerHostName: "regal.pw"
+        serverName: "example"
+        webServerHostName: "www.example.com"
 database:
     host: '127.0.0.1'
     port: '3306'
