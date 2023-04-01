@@ -14,7 +14,7 @@ import manners.cowardly.abpromoter.utilities.RandomStringGenerator;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 
-public class MessageBuilder {
+public class MessageTemplate {
     private BaseComponent[] components;
     private List<MenuPageAndComponentIndex> clickableMenuIndices = new ArrayList<MenuPageAndComponentIndex>();
     private List<UrlAndComponentIndex> clickableLinkIndices = new ArrayList<UrlAndComponentIndex>();
@@ -29,10 +29,10 @@ public class MessageBuilder {
      * @param type           "open" or "delivery"
      */
 
-    public MessageBuilder(List<String> rawText, boolean allowMenuLinks, String type) {
+    public MessageTemplate(List<String> rawText, boolean allowMenuLinks, String type) {
         this.allowMenuLinks = allowMenuLinks;
         saveType(type);
-        new BuildBuilder(rawText);
+        new Load(rawText);
     }
 
     private void saveType(String type) {
@@ -51,8 +51,8 @@ public class MessageBuilder {
         return rawMessage;
     }
 
-    private class BuildBuilder {
-        public BuildBuilder(List<String> rawText) {
+    private class Load {
+        public Load(List<String> rawText) {
             combineRawText(rawText);
             loadPieces(rawText);
         }
@@ -60,7 +60,7 @@ public class MessageBuilder {
         private void loadPieces(List<String> rawText) {
             List<BaseComponent> components = new ArrayList<BaseComponent>();
             rawText.forEach(rawPiece -> addPiece(rawPiece, components));
-            MessageBuilder.this.components = components.toArray(BaseComponent[]::new);
+            MessageTemplate.this.components = components.toArray(BaseComponent[]::new);
         }
 
         private void addPiece(String rawPiece, List<BaseComponent> components) {
@@ -96,7 +96,7 @@ public class MessageBuilder {
         private List<MessageLinkTokenInfo> linkTokens;
 
         public DeliverableMessage(String webServerHostName) {
-            components = Arrays.copyOf(MessageBuilder.this.components, MessageBuilder.this.components.length);
+            components = Arrays.copyOf(MessageTemplate.this.components, MessageTemplate.this.components.length);
             menuTokens = new ArrayList<MessageMenuTokenInfo>();
             linkTokens = new ArrayList<MessageLinkTokenInfo>();
             if (allowMenuLinks)
@@ -142,7 +142,7 @@ public class MessageBuilder {
         }
 
         public String getRawText() {
-            return MessageBuilder.this.rawMessage;
+            return MessageTemplate.this.rawMessage;
         }
 
         public List<MessageMenuTokenInfo> getMenuTokens() {

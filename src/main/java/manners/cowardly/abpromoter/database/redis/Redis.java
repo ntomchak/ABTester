@@ -8,7 +8,7 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.bukkit.configuration.ConfigurationSection;
 
 import manners.cowardly.abpromoter.ABPromoter;
-import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder.DeliverableMessage.MessageLinkTokenInfo;
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageTemplate.DeliverableMessage.MessageLinkTokenInfo;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
