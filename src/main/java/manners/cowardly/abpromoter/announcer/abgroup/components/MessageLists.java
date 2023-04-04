@@ -8,7 +8,7 @@ import java.util.Set;
 import org.bukkit.configuration.ConfigurationSection;
 
 import manners.cowardly.abpromoter.ABPromoter;
-import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageTemplate;
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder;
 import manners.cowardly.abpromoter.utilities.WeightedProbabilities;
 
 /**
@@ -46,7 +46,7 @@ public class MessageLists {
      *
      */
     public class MessageList {
-        private WeightedProbabilities<MessageTemplate> messages = new WeightedProbabilities<MessageTemplate>();
+        private WeightedProbabilities<MessageBuilder> messages = new WeightedProbabilities<MessageBuilder>();
         private String name;
 
         public MessageList(ConfigurationSection listSection, Messages messages, String name) {
@@ -57,7 +57,7 @@ public class MessageLists {
 
         private void loadMessage(Messages messages, String name, int weight) {
             if (weight > 0) {
-                Optional<MessageTemplate> msg = messages.getMessage(name);
+                Optional<MessageBuilder> msg = messages.getMessage(name);
                 if (msg.isPresent()) {
                     this.messages.add(msg.get(), weight);
                 } else {
@@ -66,7 +66,7 @@ public class MessageLists {
             }
         }
 
-        public MessageTemplate getRandomMessage() {
+        public MessageBuilder getRandomMessage() {
             if (messages.isEmpty()) {
                 ABPromoter.getInstance().getLogger().severe(name + " message list is empty.");
                 return null;

@@ -8,17 +8,17 @@ import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
 
-import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageTemplate;
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder;
 
 public class Messages {
-    private Map<String, MessageTemplate> messages = new HashMap<String, MessageTemplate>();
+    private Map<String, MessageBuilder> messages = new HashMap<String, MessageBuilder>();
 
     public Messages(ConfigurationSection messagesSection) {
         Set<String> keys = messagesSection.getKeys(false);
         keys.forEach(key -> loadMessage(key, messagesSection.getStringList(key)));
     }
 
-    public Optional<MessageTemplate> getMessage(String name) {
+    public Optional<MessageBuilder> getMessage(String name) {
         return Optional.ofNullable(messages.get(name));
 
     }
@@ -26,6 +26,6 @@ public class Messages {
     private void loadMessage(String name, List<String> pieces) {
         if (pieces.isEmpty())
             pieces.add("");
-        messages.put(name, new MessageTemplate(pieces, true, "delivery"));
+        messages.put(name, new MessageBuilder(pieces, true, "delivery"));
     }
 }

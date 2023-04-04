@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.UUID;
 
-import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageTemplate.DeliverableMessage.MessageMenuTokenInfo;
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder.DeliverableMessage.MessageMenuTokenInfo;
 
 /**
  * Stores announcer clickable tokens of user with menu page and msg id.

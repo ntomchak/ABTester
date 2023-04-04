@@ -12,8 +12,8 @@ import org.bukkit.scheduler.BukkitTask;
 
 import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.announcer.abgroup.components.MessageGroup;
-import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageTemplate;
-import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageTemplate.DeliverableMessage;
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder;
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder.DeliverableMessage;
 import manners.cowardly.abpromoter.database.AnnouncerDeliveries;
 import manners.cowardly.abpromoter.utilities.Utilities;
 
@@ -68,7 +68,7 @@ public class Deliverer {
                         + "\" does not have a message group in Deliverer! Skipping delivery this time. Will check again in 20 minutes.");
                 scheduler.scheduleNextDelivery(p, 1200);
             } else {
-                MessageTemplate msgBuilder = group.sampleMessage();
+                MessageBuilder msgBuilder = group.sampleMessage();
                 if (msgBuilder != null) {
                     DeliverableMessage msg = msgBuilder.getMessage(webServerHostName);
 
