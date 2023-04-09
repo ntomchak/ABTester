@@ -11,7 +11,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 
 import manners.cowardly.abpromoter.ABPromoter;
-import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder.DeliverableMessage.MessageLinkTokenInfo;
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageTemplate.DeliverableMessage.MessageLinkTokenInfo;
 import manners.cowardly.abpromoter.database.connect.ConnectionPool;
 import manners.cowardly.abpromoter.database.redis.Redis;
 import manners.cowardly.abpromoter.database.translator.MessageIdTranslator;

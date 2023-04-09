@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 
 import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.announcer.abgroup.components.MessageLists.MessageList;
-import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageBuilder;
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageTemplate;
 import manners.cowardly.abpromoter.utilities.WeightedProbabilities;
 
 /**
@@ -46,7 +46,7 @@ public class MessageGroup {
         return playerCheck.belongsInGroup(p);
     }
 
-    public MessageBuilder sampleMessage() {
+    public MessageTemplate sampleMessage() {
         return messageLists.sample().getRandomMessage();
     }
 
