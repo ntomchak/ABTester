@@ -11,25 +11,17 @@ import org.bukkit.Bukkit;
 
 import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.database.connect.ConnectionPool;
-import manners.cowardly.abpromoter.database.translator.StringIdTranslator;
 import manners.cowardly.abpromoter.database.translator.TokenIdTranslator;
 import manners.cowardly.abpromoter.menus.MenuInventories.MenuInventory;
 
 public class MenuOpen {
 
-    private StringIdTranslator menuPageTranslator;
-    private StringIdTranslator referralIdTranslator;
     private TokenIdTranslator tokenTranslator;
-    private StringIdTranslator ipIdTranslator;
     private ConnectionPool pool;
 
-    public MenuOpen(ConnectionPool pool, StringIdTranslator menuPageTranslator, StringIdTranslator referralIdTranslator,
-            TokenIdTranslator tokenTranslator, StringIdTranslator ipIdTranslator) {
+    public MenuOpen(ConnectionPool pool, TokenIdTranslator tokenTranslator) {
         this.pool = pool;
-        this.referralIdTranslator = referralIdTranslator;
-        this.menuPageTranslator = menuPageTranslator;
         this.tokenTranslator = tokenTranslator;
-        this.ipIdTranslator = ipIdTranslator;
     }
 
     // from sync
@@ -40,14 +32,13 @@ public class MenuOpen {
 
     private void fromReloadAsync(String user, String pageName, MenuInventory inventory, String ip) {
         try (Connection c = pool.getConnection()) {
-            int pageId = menuPageTranslator.idOfString(c, pageName);
-            int ipId = ipIdTranslator.idOfString(c, ip);
-            PreparedStatement s = c.prepareStatement(
-                    "INSERT INTO menu_opens SET user=(SELECT id FROM users WHERE mc_uuid=?), page=?, announcer_delivery=NULL, referral=NULL, from_reload=1, ip_address=?",
+            PreparedStatement s = c.prepareStatement("INSERT INTO menu_opens SET user=" + Constants.SELECT_USER
+                    + ", page=" + Constants.SELECT_PAGE
+                    + ", announcer_delivery=NULL, referral=NULL, from_reload=1, ip_address=" + Constants.SELECT_IP,
                     Statement.RETURN_GENERATED_KEYS);
             s.setString(1, user);
-            s.setInt(2, pageId);
-            s.setInt(3, ipId);
+            s.setString(2, pageName);
+            s.setString(3, ip);
             s.executeUpdate();
             ResultSet r = s.getGeneratedKeys();
             r.next();
@@ -72,15 +63,14 @@ public class MenuOpen {
     // from async
     private void fromDeliveryAsync(String user, String pageName, int deliveryId, MenuInventory inventory, String ip) {
         try (Connection c = pool.getConnection()) {
-            int pageId = menuPageTranslator.idOfString(c, pageName);
-            int ipId = ipIdTranslator.idOfString(c, ip);
             PreparedStatement s = c.prepareStatement(
-                    "INSERT INTO menu_opens SET user=(SELECT id FROM users WHERE mc_uuid=?), page=?, announcer_delivery=?, referral=NULL, ip_address=?",
+                    "INSERT INTO menu_opens SET user=" + Constants.SELECT_USER + ", page=" + Constants.SELECT_PAGE
+                            + ", announcer_delivery=?, referral=NULL, ip_address=" + Constants.SELECT_IP,
                     Statement.RETURN_GENERATED_KEYS);
             s.setString(1, user);
-            s.setInt(2, pageId);
+            s.setString(2, pageName);
             s.setInt(3, deliveryId);
-            s.setInt(4, ipId);
+            s.setString(4, ip);
             s.executeUpdate();
             ResultSet r = s.getGeneratedKeys();
             r.next();
@@ -104,14 +94,13 @@ public class MenuOpen {
 
     private void fromCommandAsync(String user, String pageName, MenuInventory inventory, String ip) {
         try (Connection c = pool.getConnection()) {
-            int pageId = menuPageTranslator.idOfString(c, pageName);
-            int ipId = ipIdTranslator.idOfString(c, ip);
             PreparedStatement s = c.prepareStatement(
-                    "INSERT INTO menu_opens SET user=(SELECT id FROM users WHERE mc_uuid=?), page=?, announcer_delivery=NULL, referral=NULL, ip_address=?",
+                    "INSERT INTO menu_opens SET user=" + Constants.SELECT_USER + ", page=" + Constants.SELECT_PAGE
+                            + ", announcer_delivery=NULL, referral=NULL, ip_address=" + Constants.SELECT_IP,
                     Statement.RETURN_GENERATED_KEYS);
             s.setString(1, user);
-            s.setInt(2, pageId);
-            s.setInt(3, ipId);
+            s.setString(2, pageName);
+            s.setString(3, ip);
             s.executeUpdate();
             ResultSet r = s.getGeneratedKeys();
             r.next();
@@ -133,15 +122,13 @@ public class MenuOpen {
 
     private void fromReferralAsync(String user, String pageName, String referral, MenuInventory inventory, String ip) {
         try (Connection c = pool.getConnection()) {
-            int pageId = menuPageTranslator.idOfString(c, pageName);
-            int referralId = referralIdTranslator.idOfString(c, referral);
-            int ipId = ipIdTranslator.idOfString(c, ip);
-            PreparedStatement s = c.prepareStatement(
-                    "INSERT INTO menu_opens SET user=(SELECT id FROM users WHERE mc_uuid=?), page=?, announcer_delivery=NULL, referral=?, ip_address=?");
+            PreparedStatement s = c.prepareStatement("INSERT INTO menu_opens SET user=" + Constants.SELECT_USER
+                    + ", page=" + Constants.SELECT_PAGE + ", announcer_delivery=NULL, referral="
+                    + Constants.SELECT_REFERRAL + ", ip_address=" + Constants.SELECT_IP);
             s.setString(1, user);
-            s.setInt(2, pageId);
-            s.setInt(3, referralId);
-            s.setInt(4, ipId);
+            s.setString(2, pageName);
+            s.setString(3, referral);
+            s.setString(4, ip);
             s.executeUpdate();
             ResultSet r = s.getGeneratedKeys();
             r.next();

@@ -10,15 +10,12 @@ import org.bukkit.Bukkit;
 
 import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.database.connect.ConnectionPool;
-import manners.cowardly.abpromoter.database.translator.StringIdTranslator;
 
 public class UserIpAddress {
     private ConnectionPool pool;
-    private StringIdTranslator ipIdTranslator;
 
-    public UserIpAddress(ConnectionPool pool, StringIdTranslator ipIdTranslator) {
+    public UserIpAddress(ConnectionPool pool) {
         this.pool = pool;
-        this.ipIdTranslator = ipIdTranslator;
     }
 
     // from sync only
@@ -30,11 +27,10 @@ public class UserIpAddress {
     // from async only
     public void recordAddressAsync(String ipAddress, String uuid) {
         try (Connection c = pool.getConnection()) {
-            int ipId = ipIdTranslator.idOfString(c, ipAddress);
-            if (!checkIfUserIpRecordExists(c, ipId, uuid)) {
-                PreparedStatement s = c.prepareStatement(
-                        "INSERT INTO user_ip_addresses SET ip_address=?, user=(SELECT id FROM users WHERE mc_uuid=?)");
-                s.setInt(1, ipId);
+            if (!checkIfUserIpRecordExists(c, ipAddress, uuid)) {
+                PreparedStatement s = c.prepareStatement("INSERT INTO user_ip_addresses SET ip_address="
+                        + Constants.SELECT_IP + ", user=(SELECT id FROM users WHERE mc_uuid=?)");
+                s.setString(1, ipAddress);
                 s.setString(2, uuid);
                 s.execute();
                 s.close();
@@ -53,11 +49,11 @@ public class UserIpAddress {
      * @param uuid
      * @return
      */
-    private boolean checkIfUserIpRecordExists(Connection c, int id, String uuid) {
+    private boolean checkIfUserIpRecordExists(Connection c, String ip, String uuid) {
         try {
-            PreparedStatement s = c.prepareStatement(
-                    "SELECT user FROM user_ip_addresses WHERE ip_address=? AND user=(SELECT id FROM users WHERE mc_uuid=?)");
-            s.setInt(1, id);
+            PreparedStatement s = c.prepareStatement("SELECT user FROM user_ip_addresses WHERE ip_address="
+                    + Constants.SELECT_IP + " AND user=(SELECT id FROM users WHERE mc_uuid=?)");
+            s.setString(1, ip);
             s.setString(2, uuid);
             ResultSet r = s.executeQuery();
             if (r.next()) {
@@ -73,7 +69,7 @@ public class UserIpAddress {
             e.printStackTrace();
             ABPromoter.getInstance().getLogger()
                     .severe("Could not check if this ip-user pair is already in the database. uuid: " + uuid
-                            + ", ip address id: " + id);
+                            + ", ip address: " + ip);
             return false;
         }
     }

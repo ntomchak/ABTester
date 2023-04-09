@@ -20,8 +20,6 @@ import manners.cowardly.abpromoter.database.SaveABGroup;
 import manners.cowardly.abpromoter.database.UserIpAddress;
 import manners.cowardly.abpromoter.database.connect.ConnectionPool;
 import manners.cowardly.abpromoter.database.redis.Redis;
-import manners.cowardly.abpromoter.database.translator.MessageIdTranslator;
-import manners.cowardly.abpromoter.database.translator.StringIdTranslator;
 import manners.cowardly.abpromoter.database.translator.TokenIdTranslator;
 import manners.cowardly.abpromoter.listeners.InventoryListeners;
 import manners.cowardly.abpromoter.listeners.JoinQuitListeners;
@@ -52,14 +50,8 @@ public class ABPromoter extends JavaPlugin {
         //
         pool = new ConnectionPool(getConfig().getConfigurationSection("database"));
 
-        // translators
+        // translator
         TokenIdTranslator tokenTranslator = new TokenIdTranslator();
-        StringIdTranslator messageGroupTranslator = new StringIdTranslator("announcer_message_groups", "name", false);
-        StringIdTranslator buttonNameTranslator = new StringIdTranslator("menu_button_names", "name", false);
-        StringIdTranslator menuPageTranslator = new StringIdTranslator("menu_page_names", "name", false);
-        StringIdTranslator referralIdTranslator = new StringIdTranslator("menu_referral", "name", false);
-        MessageIdTranslator messagesIdTranslator = new MessageIdTranslator();
-        StringIdTranslator ipIdTranslator = new StringIdTranslator("ip_addresses", "ip_address", true);
 
         // announcer tokens
         AnnouncerTokenRecords tokenRecords = new AnnouncerTokenRecords();
@@ -74,15 +66,13 @@ public class ABPromoter extends JavaPlugin {
         GetPlayerABGroups getGroupsDb = new GetPlayerABGroups(pool);
         InsertPlayerABGroups recordGroupsDb = new InsertPlayerABGroups(pool);
         AnnouncerClick announcerClickDb = new AnnouncerClick(tokenTranslator, pool);
-        AnnouncerDeliveries deliveriesDb = new AnnouncerDeliveries(tokenTranslator, messageGroupTranslator,
-                messagesIdTranslator, pool, ipIdTranslator, redis);
+        AnnouncerDeliveries deliveriesDb = new AnnouncerDeliveries(tokenTranslator, pool, redis);
         MenuClose menuCloseDb = new MenuClose(pool);
-        MenuLinkClick linkClickDb = new MenuLinkClick(pool, buttonNameTranslator, redis);
-        MenuOpen menuOpenDb = new MenuOpen(pool, menuPageTranslator, referralIdTranslator, tokenTranslator,
-                ipIdTranslator);
-        MenuPageClick pageClickDb = new MenuPageClick(pool, menuPageTranslator, buttonNameTranslator);
+        MenuLinkClick linkClickDb = new MenuLinkClick(pool, redis);
+        MenuOpen menuOpenDb = new MenuOpen(pool, tokenTranslator);
+        MenuPageClick pageClickDb = new MenuPageClick(pool);
         GetABGroupsWithMembers abGroupsWithMembers = new GetABGroupsWithMembers(pool);
-        UserIpAddress userIps = new UserIpAddress(pool, ipIdTranslator);
+        UserIpAddress userIps = new UserIpAddress(pool);
 
         // ab groups
         AnnouncerABGroups announcerGroups = new AnnouncerABGroups(abGroupsWithMembers, saveGroupDb);

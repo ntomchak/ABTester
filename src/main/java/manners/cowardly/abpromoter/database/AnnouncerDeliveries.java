@@ -14,27 +14,17 @@ import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageTemplate.DeliverableMessage.MessageLinkTokenInfo;
 import manners.cowardly.abpromoter.database.connect.ConnectionPool;
 import manners.cowardly.abpromoter.database.redis.Redis;
-import manners.cowardly.abpromoter.database.translator.MessageIdTranslator;
-import manners.cowardly.abpromoter.database.translator.StringIdTranslator;
 import manners.cowardly.abpromoter.database.translator.TokenIdTranslator;
 
 public class AnnouncerDeliveries {
 
     private TokenIdTranslator tokenTranslator;
     private ConnectionPool pool;
-    private StringIdTranslator messageGroupTranslator;
-    private MessageIdTranslator messagesIdTranslator;
-    private StringIdTranslator ipTranslator;
     private Redis redis;
 
-    public AnnouncerDeliveries(TokenIdTranslator tokenTranslator, StringIdTranslator messageGroupTranslator,
-            MessageIdTranslator messagesIdTranslator, ConnectionPool pool, StringIdTranslator ipTranslator,
-            Redis redis) {
+    public AnnouncerDeliveries(TokenIdTranslator tokenTranslator, ConnectionPool pool, Redis redis) {
         this.tokenTranslator = tokenTranslator;
-        this.messagesIdTranslator = messagesIdTranslator;
-        this.messageGroupTranslator = messageGroupTranslator;
         this.pool = pool;
-        this.ipTranslator = ipTranslator;
         this.redis = redis;
     }
 
@@ -46,8 +36,8 @@ public class AnnouncerDeliveries {
      * @param user
      * @param tokens
      */
-    public void recordDelivery(String rawMessage, String messageGroup, UUID user, Collection<String> tokens,
-            String ip, Collection<MessageLinkTokenInfo> linkTokens) {
+    public void recordDelivery(String rawMessage, String messageGroup, UUID user, Collection<String> tokens, String ip,
+            Collection<MessageLinkTokenInfo> linkTokens) {
         Runnable insertDeliveryAndRecordTokens = () -> {
             int deliveryId = insertDelivery(rawMessage, messageGroup, user, ip);
             recordTokens(user, tokens, deliveryId);
@@ -65,16 +55,16 @@ public class AnnouncerDeliveries {
     // call from async only, returns id of delivery
     private int insertDelivery(String rawMessage, String messageGroup, UUID user, String ip) {
         try (Connection c = pool.getConnection()) {
-            int msgGroupId = messageGroupTranslator.idOfString(c, messageGroup);
-            int msgId = messagesIdTranslator.idOfString(c, rawMessage);
-            int ipId = ipTranslator.idOfString(c, ip);
             PreparedStatement s = c.prepareStatement(
-                    "INSERT INTO announcer_deliveries SET message=?, user=(SELECT id FROM users WHERE mc_uuid=?), message_group=?, ip_address=?",
+                    "INSERT INTO announcer_deliveries SET message=(SELECT id FROM announcer_messages WHERE text_hash_code=?), user="
+                            + Constants.SELECT_USER + ", "
+                            + "message_group=(SELECT id FROM announcer_message_groups WHERE name=?), ip_address="
+                            + Constants.SELECT_IP,
                     Statement.RETURN_GENERATED_KEYS);
-            s.setInt(1, msgId);
+            s.setInt(1, rawMessage.hashCode());
             s.setString(2, user.toString());
-            s.setInt(3, msgGroupId);
-            s.setInt(4, ipId);
+            s.setString(3, messageGroup);
+            s.setString(4, ip);
             s.executeUpdate();
             ResultSet r = s.getGeneratedKeys();
             r.next();

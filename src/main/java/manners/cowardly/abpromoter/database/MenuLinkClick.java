@@ -11,16 +11,13 @@ import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageTemplate.DeliverableMessage.MessageLinkTokenInfo;
 import manners.cowardly.abpromoter.database.connect.ConnectionPool;
 import manners.cowardly.abpromoter.database.redis.Redis;
-import manners.cowardly.abpromoter.database.translator.StringIdTranslator;
 
 public class MenuLinkClick {
     private ConnectionPool pool;
-    private StringIdTranslator buttonNameTranslator;
     private Redis redis;
 
-    public MenuLinkClick(ConnectionPool pool, StringIdTranslator buttonNameTranslator, Redis redis) {
+    public MenuLinkClick(ConnectionPool pool, Redis redis) {
         this.pool = pool;
-        this.buttonNameTranslator = buttonNameTranslator;
         this.redis = redis;
     }
 
@@ -34,10 +31,10 @@ public class MenuLinkClick {
     private void recordMenuLinkClickAsync(int openId, String buttonName, Collection<MessageLinkTokenInfo> tokens) {
         redis.recordMenuLinks(openId, tokens);
         try (Connection c = pool.getConnection()) {
-            int buttonId = buttonNameTranslator.idOfString(c, buttonName);
-            PreparedStatement s = c.prepareStatement("INSERT INTO menu_link_click (open, menu_button) VALUES (?, ?)");
+            //PreparedStatement s = c.prepareStatement("INSERT INTO menu_link_click (open, menu_button) VALUES (?, ?)");
+            PreparedStatement s = c.prepareStatement("INSERT INTO menu_link SET open=?, menu_button=" + Constants.SELECT_MENU_BUTTON);
             s.setInt(1, openId);
-            s.setInt(2, buttonId);
+            s.setString(2, buttonName);
             s.execute();
             s.close();
         } catch (SQLException e) {

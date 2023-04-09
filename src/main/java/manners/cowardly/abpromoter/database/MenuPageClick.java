@@ -8,18 +8,12 @@ import org.bukkit.Bukkit;
 
 import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.database.connect.ConnectionPool;
-import manners.cowardly.abpromoter.database.translator.StringIdTranslator;
 
 public class MenuPageClick {
     private ConnectionPool pool;
-    private StringIdTranslator buttonNameTranslator;
-    private StringIdTranslator menuPageTranslator;
 
-    public MenuPageClick(ConnectionPool pool, StringIdTranslator menuPageTranslator,
-            StringIdTranslator buttonNameTranslator) {
+    public MenuPageClick(ConnectionPool pool) {
         this.pool = pool;
-        this.buttonNameTranslator = buttonNameTranslator;
-        this.menuPageTranslator = menuPageTranslator;
     }
 
     // from sync
@@ -31,15 +25,13 @@ public class MenuPageClick {
     // from async
     private void recordPageClickAsync(int openId, String buttonName, String fromPage, String toPage) {
         try (Connection c = pool.getConnection()) {
-            int fromPageId = menuPageTranslator.idOfString(c, fromPage);
-            int toPageId = menuPageTranslator.idOfString(c, toPage);
-            int buttonId = buttonNameTranslator.idOfString(c, buttonName);
             PreparedStatement s = c.prepareStatement(
-                    "INSERT INTO menu_page_click (open, menu_button, from_menu_page, to_menu_page) VALUES (?, ?, ?, ?)");
+                    "INSERT INTO menu_page_click SET open=?, menu_button=" + Constants.SELECT_MENU_BUTTON
+                            + ", from_menu_page=" + Constants.SELECT_PAGE + ", to_menu_page=" + Constants.SELECT_PAGE);
             s.setInt(1, openId);
-            s.setInt(2, buttonId);
-            s.setInt(3, fromPageId);
-            s.setInt(4, toPageId);
+            s.setString(2, buttonName);
+            s.setString(3, fromPage);
+            s.setString(4, toPage);
             s.execute();
             s.close();
         } catch (SQLException e) {
