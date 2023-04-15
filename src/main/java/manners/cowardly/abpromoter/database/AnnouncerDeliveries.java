@@ -57,9 +57,9 @@ public class AnnouncerDeliveries {
         try (Connection c = pool.getConnection()) {
             PreparedStatement s = c.prepareStatement(
                     "INSERT INTO announcer_deliveries SET message=(SELECT id FROM announcer_messages WHERE text_hash_code=?), user="
-                            + Constants.SELECT_USER + ", "
+                            + QueryConstants.SELECT_USER + ", "
                             + "message_group=(SELECT id FROM announcer_message_groups WHERE name=?), ip_address="
-                            + Constants.SELECT_IP,
+                            + QueryConstants.SELECT_IP,
                     Statement.RETURN_GENERATED_KEYS);
             s.setInt(1, rawMessage.hashCode());
             s.setString(2, user.toString());

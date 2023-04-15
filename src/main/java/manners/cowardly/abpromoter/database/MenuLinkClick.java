@@ -32,7 +32,7 @@ public class MenuLinkClick {
         redis.recordMenuLinks(openId, tokens);
         try (Connection c = pool.getConnection()) {
             //PreparedStatement s = c.prepareStatement("INSERT INTO menu_link_click (open, menu_button) VALUES (?, ?)");
-            PreparedStatement s = c.prepareStatement("INSERT INTO menu_link SET open=?, menu_button=" + Constants.SELECT_MENU_BUTTON);
+            PreparedStatement s = c.prepareStatement("INSERT INTO menu_link SET open=?, menu_button=" + QueryConstants.SELECT_MENU_BUTTON);
             s.setInt(1, openId);
             s.setString(2, buttonName);
             s.execute();

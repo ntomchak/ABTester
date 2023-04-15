@@ -32,9 +32,9 @@ public class MenuOpen {
 
     private void fromReloadAsync(String user, String pageName, MenuInventory inventory, String ip) {
         try (Connection c = pool.getConnection()) {
-            PreparedStatement s = c.prepareStatement("INSERT INTO menu_opens SET user=" + Constants.SELECT_USER
-                    + ", page=" + Constants.SELECT_PAGE
-                    + ", announcer_delivery=NULL, referral=NULL, from_reload=1, ip_address=" + Constants.SELECT_IP,
+            PreparedStatement s = c.prepareStatement("INSERT INTO menu_opens SET user=" + QueryConstants.SELECT_USER
+                    + ", page=" + QueryConstants.SELECT_PAGE
+                    + ", announcer_delivery=NULL, referral=NULL, from_reload=1, ip_address=" + QueryConstants.SELECT_IP,
                     Statement.RETURN_GENERATED_KEYS);
             s.setString(1, user);
             s.setString(2, pageName);
@@ -64,8 +64,8 @@ public class MenuOpen {
     private void fromDeliveryAsync(String user, String pageName, int deliveryId, MenuInventory inventory, String ip) {
         try (Connection c = pool.getConnection()) {
             PreparedStatement s = c.prepareStatement(
-                    "INSERT INTO menu_opens SET user=" + Constants.SELECT_USER + ", page=" + Constants.SELECT_PAGE
-                            + ", announcer_delivery=?, referral=NULL, ip_address=" + Constants.SELECT_IP,
+                    "INSERT INTO menu_opens SET user=" + QueryConstants.SELECT_USER + ", page=" + QueryConstants.SELECT_PAGE
+                            + ", announcer_delivery=?, referral=NULL, ip_address=" + QueryConstants.SELECT_IP,
                     Statement.RETURN_GENERATED_KEYS);
             s.setString(1, user);
             s.setString(2, pageName);
@@ -95,8 +95,8 @@ public class MenuOpen {
     private void fromCommandAsync(String user, String pageName, MenuInventory inventory, String ip) {
         try (Connection c = pool.getConnection()) {
             PreparedStatement s = c.prepareStatement(
-                    "INSERT INTO menu_opens SET user=" + Constants.SELECT_USER + ", page=" + Constants.SELECT_PAGE
-                            + ", announcer_delivery=NULL, referral=NULL, ip_address=" + Constants.SELECT_IP,
+                    "INSERT INTO menu_opens SET user=" + QueryConstants.SELECT_USER + ", page=" + QueryConstants.SELECT_PAGE
+                            + ", announcer_delivery=NULL, referral=NULL, ip_address=" + QueryConstants.SELECT_IP,
                     Statement.RETURN_GENERATED_KEYS);
             s.setString(1, user);
             s.setString(2, pageName);
@@ -122,9 +122,9 @@ public class MenuOpen {
 
     private void fromReferralAsync(String user, String pageName, String referral, MenuInventory inventory, String ip) {
         try (Connection c = pool.getConnection()) {
-            PreparedStatement s = c.prepareStatement("INSERT INTO menu_opens SET user=" + Constants.SELECT_USER
-                    + ", page=" + Constants.SELECT_PAGE + ", announcer_delivery=NULL, referral="
-                    + Constants.SELECT_REFERRAL + ", ip_address=" + Constants.SELECT_IP);
+            PreparedStatement s = c.prepareStatement("INSERT INTO menu_opens SET user=" + QueryConstants.SELECT_USER
+                    + ", page=" + QueryConstants.SELECT_PAGE + ", announcer_delivery=NULL, referral="
+                    + QueryConstants.SELECT_REFERRAL + ", ip_address=" + QueryConstants.SELECT_IP);
             s.setString(1, user);
             s.setString(2, pageName);
             s.setString(3, referral);

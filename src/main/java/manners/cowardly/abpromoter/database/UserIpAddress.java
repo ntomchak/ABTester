@@ -29,7 +29,7 @@ public class UserIpAddress {
         try (Connection c = pool.getConnection()) {
             if (!checkIfUserIpRecordExists(c, ipAddress, uuid)) {
                 PreparedStatement s = c.prepareStatement("INSERT INTO user_ip_addresses SET ip_address="
-                        + Constants.SELECT_IP + ", user=(SELECT id FROM users WHERE mc_uuid=?)");
+                        + QueryConstants.SELECT_IP + ", user=(SELECT id FROM users WHERE mc_uuid=?)");
                 s.setString(1, ipAddress);
                 s.setString(2, uuid);
                 s.execute();
@@ -52,7 +52,7 @@ public class UserIpAddress {
     private boolean checkIfUserIpRecordExists(Connection c, String ip, String uuid) {
         try {
             PreparedStatement s = c.prepareStatement("SELECT user FROM user_ip_addresses WHERE ip_address="
-                    + Constants.SELECT_IP + " AND user=(SELECT id FROM users WHERE mc_uuid=?)");
+                    + QueryConstants.SELECT_IP + " AND user=(SELECT id FROM users WHERE mc_uuid=?)");
             s.setString(1, ip);
             s.setString(2, uuid);
             ResultSet r = s.executeQuery();
