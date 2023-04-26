@@ -36,11 +36,10 @@ public class MessageTemplate {
     }
 
     private void saveType(String type) {
-        if (type == "open") {
+        if (type.equals("open"))
             externalLinkTokenLength = 8;
-        } else if (type == "delivery") {
+        else if (type.equals("delivery"))
             externalLinkTokenLength = 11;
-        }
     }
 
     public DeliverableMessage getMessage(String webServerHostName) {
