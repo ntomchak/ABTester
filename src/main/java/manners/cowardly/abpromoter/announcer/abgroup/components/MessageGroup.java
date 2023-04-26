@@ -12,14 +12,14 @@ import org.bukkit.entity.Player;
 import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.announcer.abgroup.components.MessageLists.MessageList;
 import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageTemplate;
-import manners.cowardly.abpromoter.utilities.WeightedProbabilities;
+import manners.cowardly.abpromoter.utilities.DiscreteProbabilityDistribution;
 
 /**
  * New players, vip players, etc. multiple per announcer ab group
  *
  */
 public class MessageGroup {
-    private WeightedProbabilities<MessageList> messageLists;
+    private DiscreteProbabilityDistribution<MessageList> messageLists;
     private CheckPlayerEligibility playerCheck;
     private String messageGroupName;
     private int secondsAfterLogin;
@@ -83,14 +83,14 @@ public class MessageGroup {
 
         private void loadMessageLists(ConfigurationSection messageListsSection, MessageLists lists,
                 String messageGroupName) {
-            messageLists = new WeightedProbabilities<MessageList>();
+            messageLists = new DiscreteProbabilityDistribution<MessageList>();
             Collection<String> messageListNames = messageListsSection.getKeys(false);
             messageListNames.forEach(
                     key -> loadMessageListWeight(messageListsSection, key, lists, messageGroupName, messageLists));
         }
 
         private void loadMessageListWeight(ConfigurationSection messageListsSection, String msgListName,
-                MessageLists lists, String messageGroupName, WeightedProbabilities<MessageList> listProbabilities) {
+                MessageLists lists, String messageGroupName, DiscreteProbabilityDistribution<MessageList> listProbabilities) {
             int weight = messageListsSection.getInt(msgListName);
             Optional<MessageList> list = lists.getMessageList(msgListName);
             if (list.isEmpty()) {

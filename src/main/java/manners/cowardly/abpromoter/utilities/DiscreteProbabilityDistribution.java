@@ -5,30 +5,11 @@ import java.util.Collections;
 import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class WeightedProbabilities<T> {
+public class DiscreteProbabilityDistribution<T> {
     private TreeMap<Double, T> probabilities = new TreeMap<Double, T>();
     private double cumulative = 0;
 
-    /**
-     * Negative and 0 probabilities disregarded, O(nlogn)
-     * 
-     * @param probabilities
-     */
-    public WeightedProbabilities(Collection<Probability<T>> probabilities) {
-        double cumulative = 0;
-        for (Probability<T> prob : probabilities) {
-            double p = prob.getProbability();
-            if (p > 0)
-                cumulative += p;
-            this.probabilities.put(cumulative, prob.getValue());
-        }
-        this.cumulative = cumulative;
-    }
-
-    public WeightedProbabilities() {
-    }
-
-    public void setContents(WeightedProbabilities<T> toCopy) {
+    public void setContents(DiscreteProbabilityDistribution<T> toCopy) {
         this.probabilities = toCopy.probabilities;
         this.cumulative = toCopy.cumulative;
     }
@@ -66,23 +47,5 @@ public class WeightedProbabilities<T> {
         cumulative += prob;
         probabilities.put(cumulative, t);
         return true;
-    }
-
-    public static class Probability<T> {
-        private double probability;
-        private T value;
-
-        public Probability(double probability, T value) {
-            this.probability = probability;
-            this.value = value;
-        }
-
-        public double getProbability() {
-            return probability;
-        }
-
-        public T getValue() {
-            return value;
-        }
     }
 }

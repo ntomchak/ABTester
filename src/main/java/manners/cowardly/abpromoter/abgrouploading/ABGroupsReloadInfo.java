@@ -8,16 +8,16 @@ import org.bukkit.configuration.ConfigurationSection;
 import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.database.GetABGroupsWithMembers;
 import manners.cowardly.abpromoter.database.SaveABGroup;
-import manners.cowardly.abpromoter.utilities.WeightedProbabilities;
+import manners.cowardly.abpromoter.utilities.DiscreteProbabilityDistribution;
 
 public class ABGroupsReloadInfo<T extends ABGroup> {
-    private WeightedProbabilities<T> groupsProbabilities;
+    private DiscreteProbabilityDistribution<T> groupsProbabilities;
     private ABGroupsFilesLoader filesLoader;
     private Map<String, T> groupNames;
     private ABGroupConstructor<T> constructor;
 
     public ABGroupsReloadInfo(ABGroupConstructor<T> constructor, GetABGroupsWithMembers getDbABGroups,
-            SaveABGroup saveGroupDb, WeightedProbabilities<T> groupsProbabilities, Map<String, T> groupNames,
+            SaveABGroup saveGroupDb, DiscreteProbabilityDistribution<T> groupsProbabilities, Map<String, T> groupNames,
             String directoryName, String abGroupsDbTableName, String usersTableColumnName,
             String... defaultGroupNames) {
         this.groupsProbabilities = groupsProbabilities;
@@ -54,7 +54,7 @@ public class ABGroupsReloadInfo<T extends ABGroup> {
         }
     }
 
-    public WeightedProbabilities<T> newProbabilities() {
+    public DiscreteProbabilityDistribution<T> newProbabilities() {
         return groupsProbabilities;
     }
 
@@ -78,7 +78,7 @@ public class ABGroupsReloadInfo<T extends ABGroup> {
 
     private void reloadWeights(ABGroupsFilesLoader filesLoader, Map<String, T> groupNames) {
         Map<String, Integer> weights = filesLoader.getWeights();
-        WeightedProbabilities<T> probabilities = new WeightedProbabilities<T>();
+        DiscreteProbabilityDistribution<T> probabilities = new DiscreteProbabilityDistribution<T>();
         weights.entrySet().forEach(entry -> probabilities.add(groupNames.get(entry.getKey()), entry.getValue()));
         groupsProbabilities.setContents(probabilities);
     }

@@ -10,11 +10,11 @@ import org.bukkit.configuration.ConfigurationSection;
 import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.database.GetABGroupsWithMembers;
 import manners.cowardly.abpromoter.database.SaveABGroup;
-import manners.cowardly.abpromoter.utilities.WeightedProbabilities;
+import manners.cowardly.abpromoter.utilities.DiscreteProbabilityDistribution;
 
 public class ABGroupsLoadInfo<T extends ABGroup> {
 
-    private WeightedProbabilities<T> groupsProbabilities = new WeightedProbabilities<T>();
+    private DiscreteProbabilityDistribution<T> groupsProbabilities = new DiscreteProbabilityDistribution<T>();
     private Map<String, T> groupNames = new HashMap<String, T>();
 
     public ABGroupsLoadInfo(ABGroupConstructor<T> constructor, GetABGroupsWithMembers getDbABGroups,
@@ -31,7 +31,7 @@ public class ABGroupsLoadInfo<T extends ABGroup> {
         }
     }
 
-    public WeightedProbabilities<T> groupsProbabilities() {
+    public DiscreteProbabilityDistribution<T> groupsProbabilities() {
         return groupsProbabilities;
     }
 

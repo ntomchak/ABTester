@@ -9,7 +9,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import manners.cowardly.abpromoter.ABPromoter;
 import manners.cowardly.abpromoter.announcer.abgroup.components.messages.MessageTemplate;
-import manners.cowardly.abpromoter.utilities.WeightedProbabilities;
+import manners.cowardly.abpromoter.utilities.DiscreteProbabilityDistribution;
 
 /**
  * 1 per announcer ab group
@@ -46,7 +46,7 @@ public class MessageLists {
      *
      */
     public class MessageList {
-        private WeightedProbabilities<MessageTemplate> messages = new WeightedProbabilities<MessageTemplate>();
+        private DiscreteProbabilityDistribution<MessageTemplate> messages = new DiscreteProbabilityDistribution<MessageTemplate>();
         private String name;
 
         public MessageList(ConfigurationSection listSection, Messages messages, String name) {

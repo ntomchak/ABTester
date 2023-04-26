@@ -8,10 +8,10 @@ import manners.cowardly.abpromoter.abgrouploading.ABGroupsReloadInfo;
 import manners.cowardly.abpromoter.database.GetABGroupsWithMembers;
 import manners.cowardly.abpromoter.database.SaveABGroup;
 import manners.cowardly.abpromoter.menus.menuabgroups.MenuABGroup;
-import manners.cowardly.abpromoter.utilities.WeightedProbabilities;
+import manners.cowardly.abpromoter.utilities.DiscreteProbabilityDistribution;
 
 public class MenuABGroups {
-    private WeightedProbabilities<MenuABGroup> groupsProbabilities = new WeightedProbabilities<MenuABGroup>();
+    private DiscreteProbabilityDistribution<MenuABGroup> groupsProbabilities = new DiscreteProbabilityDistribution<MenuABGroup>();
     private Map<String, MenuABGroup> groupNames = new HashMap<String, MenuABGroup>();
 
     public MenuABGroups(GetABGroupsWithMembers getDbABGroups, SaveABGroup saveGroupDb) {

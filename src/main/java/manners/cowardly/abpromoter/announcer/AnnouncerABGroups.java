@@ -8,10 +8,10 @@ import manners.cowardly.abpromoter.abgrouploading.ABGroupsReloadInfo;
 import manners.cowardly.abpromoter.announcer.abgroup.AnnouncerABGroup;
 import manners.cowardly.abpromoter.database.GetABGroupsWithMembers;
 import manners.cowardly.abpromoter.database.SaveABGroup;
-import manners.cowardly.abpromoter.utilities.WeightedProbabilities;
+import manners.cowardly.abpromoter.utilities.DiscreteProbabilityDistribution;
 
 public class AnnouncerABGroups {
-    private WeightedProbabilities<AnnouncerABGroup> groupsProbabilities = new WeightedProbabilities<AnnouncerABGroup>();
+    private DiscreteProbabilityDistribution<AnnouncerABGroup> groupsProbabilities = new DiscreteProbabilityDistribution<AnnouncerABGroup>();
     private Map<String, AnnouncerABGroup> groupNames = new HashMap<String, AnnouncerABGroup>();
 
     public AnnouncerABGroups(GetABGroupsWithMembers getDbABGroups, SaveABGroup saveGroupDb) {
