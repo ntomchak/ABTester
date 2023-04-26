@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import manners.cowardly.abpromoter.announcer.abgroup.components.messages.pieces.ExternalLinkPiece;
 import manners.cowardly.abpromoter.announcer.abgroup.components.messages.pieces.MenuLinkPiece;
 import manners.cowardly.abpromoter.announcer.abgroup.components.messages.pieces.MessagePiece;
+import manners.cowardly.abpromoter.announcer.abgroup.components.messages.pieces.MessagePieceFactory;
 import manners.cowardly.abpromoter.utilities.RandomStringGenerator;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -63,7 +64,7 @@ public class MessageTemplate {
         }
 
         private void addPiece(String rawPiece, List<BaseComponent> components) {
-            MessagePiece piece = MessagePiece.fromRawText(rawPiece);
+            MessagePiece piece = MessagePieceFactory.fromRawText(rawPiece);
             piece.appendComponents(components);
             if (allowMenuLinks && piece instanceof MenuLinkPiece)
                 saveClickableMenuPiece(components.size() - 1, (MenuLinkPiece) piece);

@@ -5,7 +5,7 @@ import java.util.List;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-public class LegacyTextPiece extends MessagePiece {
+public class LegacyTextPiece implements MessagePiece {
 
     private BaseComponent[] components;
 
